@@ -213,9 +213,7 @@
 ;; ---------------------------------------------------------------- ;;
 ;; The task device
 ;; ---------------------------------------------------------------- ;;
-
 	     
-
 (defclass pss-task ()
   ((phase :accessor phase
 	  :initform nil)
@@ -229,7 +227,7 @@
 		  :initform nil)
    (experiment-log :accessor experiment-log
 		   :initform nil))
-  (:documentation "A manager for the IAT task"))
+  (:documentation "A manager for the PSS task"))
 
 (defmethod init ((task pss-task))
   (when (and (not (null (test-trials task)))
