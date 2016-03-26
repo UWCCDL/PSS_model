@@ -230,6 +230,7 @@
   (:documentation "A manager for the PSS task"))
 
 (defmethod init ((task pss-task))
+  "Initializes the PSS task manager"
   (when (and (not (null (test-trials task)))
 	     (not (null (training-trials task))))
     (setf (index task) 0)
@@ -251,12 +252,14 @@
 	   (prob (cdr (assoc chosen *probabilities*)))
 	   
 	   (feedback (< n prob)))
-;      (print (list prob chosen n feedback))
+
       (set-trial-chosen-option trial chosen)
       (set-trial-best-option trial (trial-best-option trial))
       (set-trial-feedback trial feedback))
+
     ;; If ACT-R is loaded, we need to sync the visicon with the
     ;; state of the task.
+
     (when (act-r-loaded?)
       (cond ((equal (phase task) 'test)
 	     (schedule-event-relative 0 #'next :params (list task)))
@@ -268,9 +271,8 @@
       
 
 
-
-
 (defmethod next ((task pss-task))
+  "Moves on to the next stage of the task"
   (unless (null (index task))  ; If it null, the tast is not initialized yetr
     (incf (index task))  ; Increament the index. This is easy
     (push (current-trial task) (experiment-log task))
@@ -312,6 +314,7 @@
 
 
 (defun process-reward ()
+  "Transforms the task manager's feedback into numeric reward and has ACT-R process it"
   (let* ((feedback (trial-feedback (current-trial (current-device))))
 	 (reward (if feedback 1 -1)))
     (trigger-reward reward)))
@@ -408,6 +411,7 @@
   (vector 0 0))
 
 (defmethod cursor-to-vis-loc ((device pss-task))
+  "Does nothing"
   (declare (ignore device))
   nil)
 
