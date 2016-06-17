@@ -1,6 +1,14 @@
+;;; ------------------------------------------------------------------
+;;; AN ACT-R MODEL OF THE PROBABILISTIC STIMULUS SELECTION (PSS) TASK
+;;; ------------------------------------------------------------------
+;;; (c) 2016, Andrea Stocco,
+;;;           University of Washington, Seattle
+;;; ------------------------------------------------------------------
+;;; 
+
 (clear-all)
 
- (define-model pss
+(define-model pss
 
 (sgp :er t :auto-attend t :overstuff-visual-location t
      :esc t :ul t :reward-hook bg-reward-hook :alpha 0.1 :egs 0.1)
@@ -10,7 +18,7 @@
 
 (set-visloc-default screen-x 200 :attended new)
 
-(chunk-type pss-task  step)
+(chunk-type pss-task step)
 
 (chunk-type working-memory wm shape-a shape-b shape-c shape-d shape-e shape-f) 
 
