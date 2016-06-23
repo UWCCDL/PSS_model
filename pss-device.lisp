@@ -11,23 +11,24 @@
 (defun simulate (n &optional (params nil))
   (let ((results nil))
     (dotimes (i n)
-      (suppress-warnings (reload))
-      (install-device p)
-      (init p)
-      (proc-display)
-      (sgp :v nil)
-
-      ;; Applies the necessary parameters
-      (when params
-	(apply 'sgp params)) 
-      ;(sgp :trace-filter production-firing-only)
-      (run 3000)
-      
-      (push (calculate-choose-avoid (experiment-log (current-device)))
-	    results))
+      (let ((p (make-instance 'pss-task)))
+	(suppress-warnings (reload))
+	(install-device p)
+	(init p)
+	(proc-display)
+	(sgp :v nil)
+	
+	;; Applies the necessary parameters
+	(when params
+	  (apply 'sgp params)) 
+        ;; (sgp :trace-filter production-firing-only)
+	(run 3000)
+	
+	(push (calculate-choose-avoid (experiment-log (current-device)))
+	      results)))
     (mapcar 'float (list (apply 'mean (mapcar 'first results))
 			 (apply 'mean (mapcar 'second results))))))
-       
+  
 
 ;;; ------------------------------------------------------------------
 ;;; MULTI-PARAMETER OPTIMIZATION
@@ -231,7 +232,7 @@ in the same values"
 (defun trial-feedback (trial)
   (fourth trial))
 
-(defun trial-phase (trial)
+(defun trial-pphase (trial)
   (fifth trial))
 
 (defun trial-best-option (trl)
@@ -256,8 +257,8 @@ in the same values"
 (defun set-trial-feedback (trl feedback)
   (setf (nth 3 trl) feedback))
 
-(defun set-trial-phase (trl phase)
-  (setf (nth 4 trl) phase))
+(defun set-trial-pphase (trl pphase)
+  (setf (nth 4 trl) pphase))
 
 (defun equal-options? (choice1 choice2)
   "Two choices have equal options if they options are the same indendent of the order"
@@ -291,7 +292,7 @@ in the same values"
 ;; ---------------------------------------------------------------- ;;
 	     
 (defclass pss-task ()
-  ((phase :accessor phase
+  ((pphase :accessor pphase
 	  :initform nil)
    (index :accessor index
 	  :initform nil)
@@ -314,8 +315,8 @@ in the same values"
     (setf (test-trials task) (scramble* (test-trials task)))
     (setf (training-trials task) (scramble* (training-trials task)))
     (setf (current-trial task) (make-trial (nth (index task) (training-trials task))))
-    (setf (phase task) 'training))
-    (set-trial-phase (current-trial task) 'training))
+    (setf (pphase task) 'training))
+    (set-trial-pphase (current-trial task) 'training))
 
 (defmethod respond ((task pss-task) key)
   "Records a response in the PSS task"
@@ -337,9 +338,9 @@ in the same values"
     ;; state of the task.
 
     (when (act-r-loaded?)
-      (cond ((equal (phase task) 'test)
+      (cond ((equal (pphase task) 'test)
 	     (schedule-event-relative 0 #'next :params (list task)))
-	    ((equal (phase task) 'training)
+	    ((equal (pphase task) 'training)
 	     (schedule-event-relative 0 #'proc-display :params nil)
 	     (schedule-event-relative 3 #'next :params (list task)))
 	    (t
@@ -352,23 +353,23 @@ in the same values"
   (unless (null (index task))  ; If it null, the tast is not initialized yetr
     (incf (index task))  ; Increament the index. This is easy
     (push (current-trial task) (experiment-log task))
-    (cond ((equal (phase task) 'training) ; We are in training phase
+    (cond ((equal (pphase task) 'training) ; We are in training pphase
 	   (cond ((< (index task) (length (training-trials task)))
 		  (setf (current-trial task)
 			(make-trial (nth (index task)
 					 (training-trials task))))
-		  (set-trial-phase (current-trial task) (phase task)))
+		  (set-trial-pphase (current-trial task) (pphase task)))
 		 (t
 		  (cond ((or (training-passed? (subseq (experiment-log task) 0 60))
 			     (>= (length (experiment-log task)) 360))
 			 (print '(Pass to training))
-			 (setf (phase task)
+			 (setf (pphase task)
 			       'test)
 			 (setf (index task)
 			       0)
 			 (setf (current-trial task)
 			       (make-trial (nth 0 (test-trials task))))
-			 (set-trial-phase (current-trial task) (phase task)))
+			 (set-trial-pphase (current-trial task) (pphase task)))
 			(t ; if trainijng not passed
 			 (setf (index task)
 			       0)
@@ -376,15 +377,15 @@ in the same values"
 			       (scramble* (training-trials task)))
 			 (setf (current-trial task)
 			       (make-trial (nth 0 (training-trials task))))
-			 (set-trial-phase (current-trial task) (phase task)))))))
+			 (set-trial-pphase (current-trial task) (pphase task)))))))
 	  
-	  ((equal (phase task) 'test)
+	  ((equal (pphase task) 'test)
 	   (cond ((< (index task) (length (test-trials task)))
 		  (setf (current-trial task)
 			(make-trial (nth (index task) (test-trials task))))
-		  (set-trial-phase (current-trial task) (phase task)))
+		  (set-trial-pphase (current-trial task) (pphase task)))
 		 (t
-		  (setf (phase task) 'done)))))
+		  (setf (pphase task) 'done)))))
     (when (act-r-loaded?)
       (proc-display :clear t))))
 
@@ -402,12 +403,12 @@ in the same values"
 
 (defmethod build-vis-locs-for ((device pss-task) vismod)
   "Creates a list of visual locations"
-  (let* ((phase (phase device))
+  (let* ((pphase (pphase device))
 	 (trial (current-trial device))
 	 (feedback (trial-feedback trial))
 	 (choice (trial-choice trial)))
-    (cond ((and (or (equal phase 'test)
-		    (and (equal phase 'training)
+    (cond ((and (or (equal pphase 'test)
+		    (and (equal pphase 'training)
 			 (null (trial-chosen-option trial)))))
 	   (funcall #'define-chunks-fct 
 		    (list `(isa visual-location 
@@ -438,7 +439,7 @@ in the same values"
 				height 100 
 				width 200))))
     
-	  ((And (equal phase 'training)
+	  ((And (equal pphase 'training)
 		(not (null (trial-chosen-option trial))))
 	   (funcall #'define-chunks-fct 
 		    (list `(isa visual-location 
@@ -452,7 +453,7 @@ in the same values"
 				height 100 
 				width 200))))
 	  
-	  ((and (equal phase 'done))
+	  ((and (equal pphase 'done))
 	   (funcall #'define-chunks-fct 
 		    (list `(isa visual-location 
 				kind done
@@ -527,7 +528,7 @@ in the same values"
 	(schedule-event-relative duration #'next :params (list tm))))))
 
 (defun calculate-choose-avoid (log)
-  (let* ((data (remove-if-not #'(lambda (x) (equal x 'test)) log :key 'trial-phase))
+  (let* ((data (remove-if-not #'(lambda (x) (equal x 'test)) log :key 'trial-pphase))
 	 (a-list (remove-if-not #'(lambda (x) (member 'shape-a (trial-choice x))) data))
 	 (b-list (remove-if-not #'(lambda (x) (member 'shape-b (trial-choice x))) data))
 	 (a-list (remove-if #'(lambda (x) (member 'shape-b (trial-choice x))) a-list))
