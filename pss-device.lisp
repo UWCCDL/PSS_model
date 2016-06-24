@@ -1,3 +1,11 @@
+;;; ------------------------------------------------------------------
+;;; DEVICE FOR THE PSS TASK
+;;; ------------------------------------------------------------------
+;;; To dos:
+;;;
+;;; 1. Define simulations and parameters. 
+;;;
+
 (defparameter *d1* 0.1)
 
 (defparameter *d2* 1)
@@ -13,14 +21,17 @@
     (dotimes (i n)
       (let ((p (make-instance 'pss-task)))
 	(suppress-warnings (reload))
-	(install-device p)
-	(init p)
-	(proc-display)
-	(sgp :v nil)
+	(pss-reload p)
+	;(install-device p)
+	;(init p)
+	;(proc-display)
+	(sgp :v nil
+	     :style-warnings nil
+	     :model-warnings nil)
 	
 	;; Applies the necessary parameters
 	(when params
-	  (apply 'sgp params)) 
+	  (apply 'sgp params))
         ;; (sgp :trace-filter production-firing-only)
 	(run 3000)
 	
@@ -362,7 +373,7 @@ in the same values"
 		 (t
 		  (cond ((or (training-passed? (subseq (experiment-log task) 0 60))
 			     (>= (length (experiment-log task)) 360))
-			 (print '(Pass to training))
+			 ;(print '(Pass to training))
 			 (setf (pphase task)
 			       'test)
 			 (setf (index task)
@@ -411,7 +422,7 @@ in the same values"
 		    (and (equal pphase 'training)
 			 (null (trial-chosen-option trial)))))
 	   (funcall #'define-chunks-fct 
-		    (list `(isa visual-location 
+		    (list `(isa pss-visual-location 
 				kind option
 				value ,(first choice)
 				color black
@@ -420,7 +431,7 @@ in the same values"
 				screen-y 100 
 				height 200 
 				width 100)
-			  `(isa visual-location 
+			  `(isa pss-visual-location 
 				kind option
 				value ,(second choice)
 				color black
@@ -429,7 +440,7 @@ in the same values"
 				screen-y 100 
 				height 200 
 				width 100)
-			  `(isa visual-location 
+			  `(isa pss-visual-location 
 				kind screen
 				value choices
 				color black
@@ -442,7 +453,7 @@ in the same values"
 	  ((And (equal pphase 'training)
 		(not (null (trial-chosen-option trial))))
 	   (funcall #'define-chunks-fct 
-		    (list `(isa visual-location 
+		    (list `(isa pss-visual-location 
 				kind feedback
 				value ,(if feedback 'correct 'incorrect)
 				color ,(if feedback 'blue 'red)
@@ -455,7 +466,7 @@ in the same values"
 	  
 	  ((and (equal pphase 'done))
 	   (funcall #'define-chunks-fct 
-		    (list `(isa visual-location 
+		    (list `(isa pss-visual-location 
 				kind done
 				value done
 				color black
@@ -500,7 +511,7 @@ in the same values"
 	(position (chunk-slot-value-fct vis-loc 'position))
 	(new-chunk nil))
     (setf new-chunk (first (define-chunks-fct 
-			       `((isa visual-object 
+			       `((isa pss-visual-object 
 				      value ,value
 				      what ,kind
 				      shape ,value
@@ -535,12 +546,12 @@ in the same values"
 	 (b-list (remove-if #'(lambda (x) (member 'shape-a (trial-choice x))) b-list))
 	 (choose-a (apply 'mean (mapcar 'trial-accuracy a-list)))
 	 (avoid-b (apply 'mean (mapcar 'trial-accuracy b-list))))
-    (print (list (length a-list) (length b-list)))
+    ;(print (list (length a-list) (length b-list)))
     (list choose-a avoid-b)))
 
-(defun pss-reload ()
+(defun pss-reload (&optional (device (current-device)))
   (reload)
-  (install-device p)
-  (init p)
+  (install-device device)
+  (init device)
   (proc-display))
 

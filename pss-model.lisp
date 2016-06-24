@@ -10,9 +10,17 @@
 
 (define-model pss
 
-(sgp :er t :auto-attend t :overstuff-visual-location t
-     :esc t :ul t :reward-hook bg-reward-hook :alpha 0.1 :egs 0.1)
-     ;:utility-hook bg-utility-hook)
+(sgp :er t
+     :auto-attend t
+     :overstuff-visual-location t
+     :esc t
+     :ul t
+     :reward-hook bg-reward-hook
+     :alpha 0.1
+     :egs 0.1
+;     :model-warnings nil
+     :style-warnings nil)
+  ;;:utility-hook bg-utility-hook)
 
 ;(sgp :trace-filter production-firing-only)
 
@@ -20,7 +28,14 @@
 
 (chunk-type pss-task step)
 
-(chunk-type working-memory wm shape-a shape-b shape-c shape-d shape-e shape-f) 
+(chunk-type working-memory wm shape-a shape-b shape-c shape-d shape-e shape-f left right)
+
+(chunk-type (pss-visual-object (:include visual-object))
+	    what shape color position)
+
+(chunk-type (pss-visual-location (:include visual-location))
+	    shape color position)
+
 
 (add-dm (wait isa chunk)
 	(choice isa chunk)
@@ -60,7 +75,7 @@
    =visual-location>
       kind screen
       value choices
-      attended nil
+      ;attended nil
      
    ?visual>
       state free
@@ -124,7 +139,7 @@
    +visual-location>
       kind option
       position left
-      attended nil
+      ;attended nil
    =imaginal>
 )
 
@@ -144,7 +159,7 @@
    +visual-location>
       kind option
       position right
-      attended nil
+      ;attended nil
    =imaginal>
 )
 
@@ -177,8 +192,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-A present
 
 ==>
@@ -197,8 +212,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-A present
 
 ==>
@@ -217,8 +232,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-b present
 
 ==>
@@ -238,8 +253,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-b present
 
 ==>
@@ -259,8 +274,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-C present
 
 ==>
@@ -279,8 +294,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-C present
 
 ==>
@@ -299,8 +314,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-D present
 
 ==>
@@ -319,8 +334,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-D present
 
 ==>
@@ -339,8 +354,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-E present
 
 ==>
@@ -359,8 +374,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-E present
 
 ==>
@@ -379,8 +394,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-F present
 
 ==>
@@ -399,8 +414,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-F present
 
 ==>
