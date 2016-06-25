@@ -6,17 +6,17 @@
 ;;; 1. Define simulations and parameters. 
 ;;;
 
-(defparameter *d1* 0.1)
+(defparameter *d1* 1)
 
 (defparameter *d2* 1)
 
-(defparameter *frank-data* '((controls . (67.66 63.25))
-			     (on-dopa . (78.96 57.92))
-			     (off-dopa . (64.67 81.95)))
+(defparameter *frank-data* '((controls . (0.6766 0.6325))
+			     (on-dopa . (0.7896 0.5792))
+			     (off-dopa . (0.6467 0.8195)))
   "Data from Frank, Seeberger, and O'Reilly's 2004 study" )
 
 
-(defun simulate (n &optional (params nil))
+(defun simulate (n &key (params nil))
   (let ((results nil))
     (dotimes (i n)
       (let ((p (make-instance 'pss-task)))
@@ -30,8 +30,11 @@
 	     :model-warnings nil)
 	
 	;; Applies the necessary parameters
+	;(when params
+	;  (apply 'sgp params))
 	(when params
-	  (apply 'sgp params))
+	  (sgp-fct (mapcan #'(lambda (x) (list (first x) (rest x))) params)))
+
         ;; (sgp :trace-filter production-firing-only)
 	(run 3000)
 	
@@ -41,82 +44,6 @@
 			 (apply 'mean (mapcar 'second results))))))
   
 
-;;; ------------------------------------------------------------------
-;;; MULTI-PARAMETER OPTIMIZATION
-;;; ------------------------------------------------------------------
-;;; Performs derivative-free optimization over parameter space
-;;; ------------------------------------------------------------------
-
-(defun ps-point? (pnt)
-  "A PS point is a list of keyword/value conses" 
-  (and (every 'consp pnt)
-       (every 'keywordp (mapcar #'first pnt))))
-
-(defun ps-point-equal? (pnt1 pnt2)
-  "Two PS points are equal if they conta
-in the same values"
-  (and (ps-point? pnt1)
-       (ps-point? pnt2)
-       (= (length pnt1) (length pnt2))
-       (every #'(lambda (x) (member x pnt2 :test #'equalp))
-	      pnt1)))
-
-(defun copy-ps-point (pnt)
-  "Creates a deep copy of a point"
-  (when (ps-point? pnt)
-    (mapcar #'(lambda (x) (cons (first x) (rest x)))
-	    pnt)))
-
-
-(defun replace-value (point param newval)
-  "Replaces the value of a parameter in a point. Returns a copy"
-  (let ((newpoint (copy-ps-point point)))
-    (setf (cdr (assoc param newpoint)) newval)
-    newpoint))
-
-(defun generate-sampling-points (point param step)
-  "Generate sampling points across one dimension (parameter) for a given point"
-  (let* ((initial (cdr (assoc param point)))
-	 (vals (list (- initial step) initial (+ initial step))))
-    (mapcar #'(lambda (x) (replace-value point param x))
-	    vals)))
-
-(defun determine-new-space-positions (point steps)
-  "Samples across multiple parameters"
-  (let ((results (list point)))
-    (dolist (pair steps results)
-      (let ((param (first pair))
-	    (step (rest pair)))
-	(setf results
-	      (append results (mapcan #'(lambda (x)
-					  (generate-sampling-points x param step))
-				      results)))))
-    (remove-duplicates results :test #'ps-point-equal?)))
-
-
-(defun parameter-optimize (start steps function reference &optional (previously-sampled nil))
-  ;; Calculates an objective function of the results 
-  (let* ((samples (determine-new-space-positions start steps))
-	 (new-points (remove-if #'(lambda (x) (member
-					       x
-					       previously-sampled
-					       :test #'ps-point-equal?))
-				samples))
-	 (results (mapcar #'(lambda (point) (simulate 100 point))
-			  new-points))
-	 (values (mapcar function results))
-	 (minimum-value (apply 'min values))
-	 (minimum-value-index (position minimum-value values))
-	 (min-point (nth minimum-value-index new-points)))
-    
-    (cond ((< minimum-value reference)
-	   (parameter-optimize min-point
-			       steps
-			       function
-			       minimum-value
-			       (append previously-sampled new-points)))
-	  (t
-	   (cons start reference)))))
       
       
     
@@ -132,9 +59,9 @@ in the same values"
 	  (t
 	   nil))))
 
-(defun bg-utility-hook (production)
-  (let* ((name (symbol-name production))
-	 (start (subseq name 0 4)))))
+;(defun bg-utility-hook (production)
+;  (let* ((name (symbol-name production))
+;	 (start (subseq name 0 4)))))
 
 
 (defun act-r-loaded? ()
@@ -521,23 +448,23 @@ in the same values"
     new-chunk))
 
 
-(defun schedule-task-update (tm)
+#|(defun schedule-task-update (tm)
   "Schedules the next update of the trial manager"
   (when (act-r-loaded?)
     (proc-display)
-    (update-window tm)
-    (unless (member (state tm) *wait-states*)
+;    (update-window tm)
+ ;   (unless (member (state tm) *wait-states*)
       (let ((duration 0))
-	(cond ((member (state tm) *blanks*)
-	       (setf duration (+ 2 (* 2 (random 3)))))
-	      ((member (state tm) *fixations*)
-	       (setf duration 2))
+	(cond ;((member (state tm) *blanks*)
+	      ; (setf duration (+ 2 (* 2 (random 3)))))
+	      ;((member (state tm) *fixations*)
+	      ; (setf duration 2))
 	      ((equal (state tm) 'probe)
 	       (setf duration 2))
 	      ((equal (state tm) 'feedback)
 	       (setf duration 2)))
-	(schedule-event-relative duration #'next :params (list tm))))))
-
+	(schedule-event-relative duration #'next :params (list tm))))) ;)
+|#
 (defun calculate-choose-avoid (log)
   (let* ((data (remove-if-not #'(lambda (x) (equal x 'test)) log :key 'trial-pphase))
 	 (a-list (remove-if-not #'(lambda (x) (member 'shape-a (trial-choice x))) data))
@@ -550,6 +477,7 @@ in the same values"
     (list choose-a avoid-b)))
 
 (defun pss-reload (&optional (device (current-device)))
+  "Reloads the current PSS model"
   (reload)
   (install-device device)
   (init device)
