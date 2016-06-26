@@ -1,5 +1,6 @@
 ;;; ------------------------------------------------------------------
 ;;; AN ACT-R MODEL OF THE PROBABILISTIC STIMULUS SELECTION (PSS) TASK
+;;; BASED ON COMPETITIVE BASAL GANGLIA DYNAMICS. 
 ;;; ------------------------------------------------------------------
 ;;; (c) 2016, Andrea Stocco,
 ;;;           University of Washington, Seattle
@@ -435,6 +436,7 @@
       
 
 (p respond
+   "Press the button on the same side of the stimulus when we are ready to respond"
    =goal>
       step respond
    
@@ -466,8 +468,9 @@
 ;; Process feedback. And waits for more screen changes.
 ;; ---------------------------------------------------------------- ;;
 
-
+#|
 (p process-feedback
+   "Processes feedback on the screen"
    =goal>
     - step wait 
    
@@ -483,17 +486,63 @@
       
    !eval! (process-reward)   
 )
+|#
+(p process-feedback-correct
+   "Processes feedback on the screen"
+   =goal>
+    - step wait 
+   
+   ?visual>
+      state free 
+
+   =visual>
+      what feedback
+      value correct
+==>
+   =goal>
+      step wait
+   =visual>
+      
+;   !eval! (process-reward)   
+)
+
+(p process-feedback-incorrect
+   "Processes feedback on the screen"
+   =goal>
+    - step wait 
+   
+   ?visual>
+      state free 
+
+   =visual>
+      what feedback
+      value incorrect
+==>
+   =goal>
+      step wait
+   =visual>
+      
+;   !eval! (process-reward)   
+)
+
 
 ;; ---------------------------------------------------------------- ;;
 ;; DONE
 ;; ---------------------------------------------------------------- ;;
 
+
+
 (p done
+   "Stop when done"
    =visual>
       what done
 ==>
    !stop!   
 )      
+
+(spp process-feedback-correct :reward 1)
+(spp process-feedback-incorrect :reward -1)
+
 
 (goal-focus do-pss)
 

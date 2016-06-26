@@ -1,5 +1,6 @@
 ;;; ------------------------------------------------------------------
 ;;; AN ACT-R MODEL OF THE PROBABILISTIC STIMULUS SELECTION (PSS) TASK
+;;; BASED ON COMPETITIVE BASAL GANGLIA DYNAMICS. 
 ;;; ------------------------------------------------------------------
 ;;; (c) 2016, Andrea Stocco,
 ;;;           University of Washington, Seattle
@@ -10,9 +11,17 @@
 
 (define-model pss
 
-(sgp :er t :auto-attend t :overstuff-visual-location t
-     :esc t :ul t :reward-hook bg-reward-hook :alpha 0.1 :egs 0.1)
-     ;:utility-hook bg-utility-hook)
+(sgp :er t
+     :auto-attend t
+     :overstuff-visual-location t
+     :esc t
+     :ul t
+     ;:reward-hook bg-reward-hook
+     :alpha 0.1
+     :egs 0.1
+;     :model-warnings nil
+     :style-warnings nil)
+  ;;:utility-hook bg-utility-hook)
 
 ;(sgp :trace-filter production-firing-only)
 
@@ -20,7 +29,14 @@
 
 (chunk-type pss-task step)
 
-(chunk-type working-memory wm shape-a shape-b shape-c shape-d shape-e shape-f) 
+(chunk-type working-memory wm shape-a shape-b shape-c shape-d shape-e shape-f left right)
+
+(chunk-type (pss-visual-object (:include visual-object))
+	    what shape color position)
+
+(chunk-type (pss-visual-location (:include visual-location))
+	    shape color position)
+
 
 (add-dm (wait isa chunk)
 	(choice isa chunk)
@@ -60,7 +76,7 @@
    =visual-location>
       kind screen
       value choices
-      attended nil
+      ;attended nil
      
    ?visual>
       state free
@@ -124,7 +140,7 @@
    +visual-location>
       kind option
       position left
-      attended nil
+      ;attended nil
    =imaginal>
 )
 
@@ -144,7 +160,7 @@
    +visual-location>
       kind option
       position right
-      attended nil
+      ;attended nil
    =imaginal>
 )
 
@@ -177,8 +193,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-A present
 
 ==>
@@ -192,13 +208,14 @@
    -imaginal>
 )
 
+
 (p pick-shape-B
    =goal>
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-b present
 
 ==>
@@ -214,14 +231,13 @@
 )
 
 
-
 (p pick-shape-C
    =goal>
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-C present
 
 ==>
@@ -235,14 +251,13 @@
    -imaginal>
 )
 
-
 (p pick-shape-D
    =goal>
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-D present
 
 ==>
@@ -261,8 +276,8 @@
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-E present
 
 ==>
@@ -276,14 +291,13 @@
    -imaginal>
 )
 
-
 (p pick-shape-F
    =goal>
       step choice
    
    =imaginal>
-      left =L    ; This is only to make sure the options are available
-      right =R   ; This is only to make sure the options are available
+      - left nil    ; This is only to make sure the options are available
+      - right nil  ; This is only to make sure the options are available
       shape-F present
 
 ==>
@@ -297,13 +311,13 @@
    -imaginal>
 )
 
-
 ;; ---------------------------------------------------------------- ;;
 ;; Motor response processes.
 ;; ---------------------------------------------------------------- ;;
       
 
 (p respond
+   "Press the button on the same side of the stimulus when we are ready to respond"
    =goal>
       step respond
    
@@ -336,7 +350,8 @@
 ;; ---------------------------------------------------------------- ;;
 
 
-(p process-feedback
+(p process-feedback-correct
+   "Processes feedback on the screen"
    =goal>
     - step wait 
    
@@ -345,19 +360,41 @@
 
    =visual>
       what feedback
+      value correct
 ==>
    =goal>
       step wait
    =visual>
       
-   !eval! (process-reward)   
+;   !eval! (process-reward)   
 )
+
+(p process-feedback-incorrect
+   "Processes feedback on the screen"
+   =goal>
+    - step wait 
+   
+   ?visual>
+      state free 
+
+   =visual>
+      what feedback
+      value incorrect
+==>
+   =goal>
+      step wait
+   =visual>
+      
+;   !eval! (process-reward)   
+)
+
 
 ;; ---------------------------------------------------------------- ;;
 ;; DONE
 ;; ---------------------------------------------------------------- ;;
 
 (p done
+   "Stop when done"
    =visual>
       what done
 ==>
@@ -365,5 +402,9 @@
 )      
 
 (goal-focus do-pss)
+
+(spp process-feedback-correct :reward 1)
+(spp process-feedback-incorrect :reward -1)
+
 
 )

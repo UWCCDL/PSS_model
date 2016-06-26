@@ -48,6 +48,7 @@
       
     
 (defun bg-reward-hook (production reward time)
+  "Special reward function for competitive D1/D2 productions"
   (declare (ignore time))
   (let* ((name (symbol-name production))
 	 (start (subseq name 0 4)))
@@ -358,6 +359,7 @@
 				screen-y 100 
 				height 200 
 				width 100)
+			  
 			  `(isa pss-visual-location 
 				kind option
 				value ,(second choice)
@@ -367,6 +369,7 @@
 				screen-y 100 
 				height 200 
 				width 100)
+			  
 			  `(isa pss-visual-location 
 				kind screen
 				value choices
