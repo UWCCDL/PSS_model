@@ -6,17 +6,54 @@
 ;;; 1. Define simulations and parameters. 
 ;;;
 
-(defparameter *d1* 1)
+;;; ------------------------------------------------------------------
+;;; ACT-R functions and parameters
+;;; ------------------------------------------------------------------
 
-(defparameter *d2* 1)
+(defparameter *d1* 1 "Value of D1 parameter")
+
+(defparameter *d2* 1 "Value of D2 parameter")
+
+(defparameter *positive-reward* 1 "Value of positive feedback")
+
+(defparameter *negative-reward* -1 "Value of negative feedback")
+
+(defun bg-reward-hook (production reward time)
+  "Special reward function for competitive D1/D2 productions"
+  (declare (ignore time))
+  (let* ((name (symbol-name production))
+	 (start (subseq name 0 4)))
+
+    (cond ((string-equal start "PICK")
+	   (* *d1* reward))
+	  ((string-equal start "DONT")
+	   (* *d2* reward))
+	  (t
+	   nil))))
+
+;(defun bg-utility-hook (production)
+;  (let* ((name (symbol-name production))
+;	 (start (subseq name 0 4)))))
+
+
+(defun act-r-loaded? ()
+  "Cheap hack to check whether ACTR is loaded"
+  (and (fboundp 'run-n-events)
+       (fboundp 'start-environment)))
+
 
 (defparameter *frank-data* '((controls . (0.6766 0.6325))
 			     (on-dopa . (0.7896 0.5792))
 			     (off-dopa . (0.6467 0.8195)))
   "Data from Frank, Seeberger, and O'Reilly's 2004 study" )
 
+;;; ------------------------------------------------------------------
+;;; SIMULATION ROUTINES
+;;; ------------------------------------------------------------------
+
 
 (defun simulate (n &key (params nil))
+  "A generic function to run the model N times. Returns Choose A and Avoid B" 
   (let ((results nil))
     (dotimes (i n)
       (let ((p (make-instance 'pss-task)))
@@ -44,31 +81,53 @@
 			 (apply 'mean (mapcar 'second results))))))
   
 
-      
-      
-    
-(defun bg-reward-hook (production reward time)
-  "Special reward function for competitive D1/D2 productions"
-  (declare (ignore time))
-  (let* ((name (symbol-name production))
-	 (start (subseq name 0 4)))
 
-    (cond ((string-equal start "PICK")
-	   (* *d1* reward))
-	  ((string-equal start "DONT")
-	   (* *d2* reward))
-	  (t
-	   nil))))
+(defun simulate-d2 (n vals)
+  "Simulates the effects of different values of D2 (makes sense only for competitive model"
+  (let ((results nil))
+    (load "pss-model.lisp")   ;; Works only with competitive model
+    (dolist (val vals (reverse results))
+      (setf *d2* val)
+      (let ((partial (simulate n)))
+	(format t "~4,f: ~4,f, ~4,f~%" val (first partial) (second partial))
+	(push (cons val partial) results)))))
 
-;(defun bg-utility-hook (production)
-;  (let* ((name (symbol-name production))
-;	 (start (subseq name 0 4)))))
+(defun simulate-d1-d2 (n vals)
+  "Simulates the effects of different values of D1 and D2 (makes sense only for competitive model"
+  (let ((results nil))
+    (load "pss-model.lisp")   ;; Works only with competitive model
+    (format t "~A, ~A, ~A, ~A~%" "D1" "D2" "ChooseA" "AvoidB")
+    (dolist (d1val vals (reverse results))
+      (dolist (d2val vals (reverse results))
+	(setf *d1* d1val)
+	(setf *d2* d2val)
+	(let ((partial (simulate n)))
+	  (format t "~4,f, ~4,f: ~4,f, ~4,f~%" d1val d2val (first partial) (second partial))
+	  (push (append (list d1val d2val) partial) results))))))
 
 
-(defun act-r-loaded? ()
-  "Cheap hack to check whether ACTR is loaded"
-  (and (fboundp 'run-n-events)
-       (fboundp 'start-environment)))
+(defun simulate-negative-feedback (n vals)
+  "Simulates the effects of different values of negative reward"
+  (let ((results nil))
+    (load "pss-model-noncompetitive.lisp")   ;; Works only with non-competitive model
+    (dolist (val vals (reverse results))
+      (setf *negative-reward* val)
+      (let ((partial (simulate n)))
+	(format t "~4,f: ~4,f, ~4,f~%" val (first partial) (second partial))
+	(push (cons val partial) results)))))
+
+(defun simulate-positive-negative-feedback (n vals)
+  "Simulates the effects of different values of positive and negative reward"
+  (let ((results nil))
+    (load "pss-model-noncompetitive.lisp")   ;; Works only with non-competitive model
+    (format t "~A, ~A, ~A, ~A~%" "PositiveRwrd" "NegativeRwrd" "ChooseA" "AvoidB")
+    (dolist (pval vals (reverse results))
+      (dolist (nval vals)
+	(setf *positive-reward* pval)
+	(setf *negative-reward* nval)
+	(let ((partial (simulate n)))
+	  (format t "~4,f, ~4,f ~4,f, ~4,f~%" pval nval (first partial) (second partial))
+	  (push (append (list pval nval) partial) results))))))
 
 ;; ---------------------------------------------------------------- ;;
 ;; Some utilities
@@ -96,9 +155,14 @@
     (mapcar #'(lambda (x) (elt lst x)) (scramble pos))))
 
 (defun mean (&rest nums)
+  "Mean of a set of numbers"
   (when (every #'numberp nums)
     (/ (reduce #'+ nums)
        (length nums))))
+
+;;; ------------------------------------------------------------------
+;;; THE PSS TASK
+;;; ------------------------------------------------------------------
 
 ;; ---------------------------------------------------------------- ;;
 ;; Data structures and parameters for the task
@@ -118,8 +182,6 @@
 				(shape-A shape-E) (shape-A shape-F)
 				(shape-B shape-C) (shape-B shape-D)
 				(shape-B shape-E) (shape-B shape-F)))
-
-
 
 
 (defparameter *training* (scramble* (let ((results nil))

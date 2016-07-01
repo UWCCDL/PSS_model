@@ -403,8 +403,8 @@
 
 (goal-focus do-pss)
 
-(spp process-feedback-correct :reward 1)
-(spp process-feedback-incorrect :reward -1)
+(spp-fct `(process-feedback-correct :reward ,*positive-reward*))
+(spp-fct `(process-feedback-incorrect :reward ,*negative-reward*))
 
 
 )
