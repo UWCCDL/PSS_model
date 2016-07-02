@@ -133,6 +133,25 @@
 ;; Some utilities
 ;; ---------------------------------------------------------------- ;;
 
+(defun seq (start end &optional (step 1))
+  "Creates a ranges"
+  (let ((results nil)
+	(partial start))
+    (cond ((and (< start end)
+		(plusp step))
+	   (while (< partial end)
+	     (push partial results)
+	     (incf partial step)))
+	  ((and (> start end)
+		(minusp step))
+	   (while (> partial end)
+	     (push partial results)
+	     (incf partial step)))
+	  (t
+	   nil))
+    (reverse results)))
+	  
+
 (defun pick (lst)
   "Picks up an element from a list"
   (when  (listp lst)
