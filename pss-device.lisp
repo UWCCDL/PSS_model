@@ -98,9 +98,9 @@
     (if report
 	;(mapcar 'float (list (apply 'mean (mapcar 'first results))
 					;		     (apply 'mean (mapcar 'second results))))
-	(mapcar #'float
-		(eval (let ((qres (mapcar #'(lambda (x) (list 'quote x)) results)))
-			`(mapcar 'mean ,@qres))))
+	(list (mapcar #'float
+		      (eval (let ((qres (mapcar #'(lambda (x) (list 'quote x)) results)))
+			      `(mapcar 'mean ,@qres)))))
 
 	(reverse results))))
   
@@ -116,18 +116,22 @@
 	(format t "~4,f: ~4,f, ~4,f~%" val (first partial) (second partial))
 	(push (cons val partial) results)))))
 
-(defun simulate-d1-d2 (n vals)
+(defparameter *d1d2-column-names* '("D1" "D2" "ChooseA" "AvoidB"
+				    "PickA" "PickB" "PickC" "PickD"
+				    "PickE" "PickF" "DontPickA" "DontPickB"
+				    "DontPickC" "DontPickD" "DontPickE" "DontPickF"))
+
+(defun simulate-d1-d2 (n vals &key (stream t) (report t) (utilities t) (params nil))
   "Simulates the effects of different values of D1 and D2 (makes sense only for competitive model"
-  (let ((results nil))
-    (load "pss-model.lisp")   ;; Works only with competitive model
-    (format t "~A, ~A, ~A, ~A~%" "D1" "D2" "ChooseA" "AvoidB")
-    (dolist (d1val vals (reverse results))
-      (dolist (d2val vals (reverse results))
-	(setf *d1* d1val)
-	(setf *d2* d2val)
-	(let ((partial (simulate n)))
-	  (format t "~4,f, ~4,f: ~4,f, ~4,f~%" d1val d2val (first partial) (second partial))
-	  (push (append (list d1val d2val) partial) results))))))
+  (load "pss-model.lisp")   ;; Works only with competitive model
+  (format stream "~{~A~^, ~}~%" *d1d2-column-names*)
+  (dolist (d1val vals)
+    (dolist (d2val vals)
+      (setf *d1* d1val)
+      (setf *d2* d2val)
+      (let ((results (simulate n :report report :utilities utilities :params params)))
+	(dolist (partial results)
+	  (format stream "~{~5,f~^, ~}~%" (append (list d1val d2val) partial)))))))
 
 
 (defun simulate-negative-feedback (n vals)
