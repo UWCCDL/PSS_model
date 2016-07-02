@@ -47,12 +47,24 @@
 			     (off-dopa . (0.6467 0.8195)))
   "Data from Frank, Seeberger, and O'Reilly's 2004 study" )
 
+(defun decision-productions ()
+  "Returns a sorted list of decision productions for a model, first 'picks' and then 'donts'" 
+  (let* ((prods (no-output (spp)))
+	 (dos (remove-if-not #'(lambda (x) (string-equal (subseq (symbol-name x) 0 4) "pick")) prods))
+	 (donts (remove-if-not #'(lambda (x) (string-equal (subseq (symbol-name x) 0 4) "dont")) prods)))
+    (append (sort dos #'string< :key 'symbol-name)
+	    (sort donts #'string< :key 'symbol-name))))
+
+(defun decision-utilities (prods)
+  "Returns a list of utilities associated with a list of productions"
+  (mapcar #'(lambda (x) (caar (no-output (spp-fct (list x :u))))) prods))
+
 ;;; ------------------------------------------------------------------
 ;;; SIMULATION ROUTINES
 ;;; ------------------------------------------------------------------
 
 
-(defun simulate (n &key (params nil))
+(defun simulate (n &key (params nil) (report t) (utilities nil))
   "A generic function to run the model N times. Returns Choose A and Avoid B" 
   (let ((results nil))
     (dotimes (i n)
@@ -74,11 +86,23 @@
 
         ;; (sgp :trace-filter production-firing-only)
 	(run 3000)
-	
-	(push (calculate-choose-avoid (experiment-log (current-device)))
-	      results)))
-    (mapcar 'float (list (apply 'mean (mapcar 'first results))
-			 (apply 'mean (mapcar 'second results))))))
+
+	(let ((partial (calculate-choose-avoid
+			(experiment-log (current-device)))))
+	  (when utilities
+	    (setf partial (append partial
+				  (decision-utilities (decision-productions)))))
+	  
+	  (push partial
+		results))))
+    (if report
+	;(mapcar 'float (list (apply 'mean (mapcar 'first results))
+					;		     (apply 'mean (mapcar 'second results))))
+	(mapcar #'float
+		(eval (let ((qres (mapcar #'(lambda (x) (list 'quote x)) results)))
+			`(mapcar 'mean ,@qres))))
+
+	(reverse results))))
   
 
 
