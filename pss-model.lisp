@@ -2,10 +2,18 @@
 ;;; AN ACT-R MODEL OF THE PROBABILISTIC STIMULUS SELECTION (PSS) TASK
 ;;; BASED ON COMPETITIVE BASAL GANGLIA DYNAMICS. 
 ;;; ------------------------------------------------------------------
-;;; (c) 2016, Andrea Stocco,
-;;;           University of Washington, Seattle
+;;;
+;;; This is a biologically-plausible, competitive implementatin of
+;;; of the PSS task in ACT-R. Different than the canonical model,
+;;; it requires two setb of productions ("Pick A, B, ... F" and "Don't
+;;; Pick A, B,... F"), whose utilities are updated and controlled
+;;; by different equations and parameters (see pss-device.lisp). 
+;;;
 ;;; ------------------------------------------------------------------
-;;; 
+;;; (c) 2016, Andrea Stocco,
+;;;     University of Washington
+;;;     stocco@uw.edu
+;;; ------------------------------------------------------------------
 
 (clear-all)
 
