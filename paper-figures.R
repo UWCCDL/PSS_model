@@ -1,5 +1,5 @@
 library(lattice)
-library(matlab)
+#library(matlab)
 
 # ANalyze basic simulations
 source("functions.R")

@@ -582,3 +582,38 @@ calculate.q.2004 <- function(val) {
   z/3
 } 
 
+
+data2 <- read.table("sims-noncompetitive-reverse/sims-positive-negative-alpha-egs-noncompetitive-reverse.txt", 
+                   header=T,
+                   sep=","
+)
+
+
+# Simplify for analysis
+s_data2 <- aggregate(data2[c("ChooseA", "AvoidB", 
+                           "PickA", "PickB",
+                           "PickC", "PickD",
+                           "PickE", "PickF")], 
+                    list(Alpha=data2$Alpha, 
+                         EGS = data2$EGS, 
+                         PosRwrd=data2$PosRwrd, 
+                         NegRwrd=data2$NegRwrd), 
+                    mean)
+
+## Individual values
+
+a_data1 <- s_data2
+a_data2 <- s_data2
+
+a_data1$AvoidB <- NULL
+names(a_data1)[5] <- "Accuracy"
+a_data1$Measure <- "Choose"
+
+a_data2$ChooseA <- NULL
+names(a_data2)[5] <- "Accuracy"
+a_data2$Measure <- "Avoid"
+
+a_data <- merge(a_data1, a_data2, all=T)
+
+a_data <- subset(a_data, a_data$Alpha < 0.1)
+a_data <- subset(a_data, a_data$EGS > 0)
