@@ -1,12 +1,12 @@
 library(lattice)
-library(matlab)
+#library(matlab)
 
 # ANalyze basic simulations
 source("functions.R")
 
 # Analysis of non-competitive model
 
-data <- read.table("sims-positive-negative-alpha-egs-noncomp.txt", 
+data <- read.table("sims-noncompetitive/sims-positive-negative-alpha-egs-noncomp.txt", 
                    header=T,
                    sep=","
                    )
@@ -65,9 +65,6 @@ round(100 * psp / (sum(c(psp))), 2)
 # 80.12431   19.87569 
 # --------------------------
 
-pie.papagera() {
-  
-}
 
 paratu <- function() {
   hist(s_data$ChooseA - s_data$AvoidB, 

@@ -60,7 +60,7 @@ frank.plot <- function(data = frank2004, cols = c("black", "#22BB22", "red"),
 #tiff("figure4abc.tiff", width=6, height=4, res=150, units="in")
 frank.triple <- function(...) {
   layout(matrix(1:3, nrow = 1, ncol = 3), widths = 1)
-  par(mar = c(4,3,3,1))
+  par(mar = c(4, 3, 3, 1.4))
   frank.plot(frank2004, title="(A) Parkinson's Disease\n(Frank et al., 2004)", ...)
   frank.plot(frank2007a, title = "(B) DARPP-32 Polymorphism\n(Frank et al., 2007) ", cols = c("#22BB22", "black"), ...)
   frank.plot(frank2007b, title = "(C) DRD2 Polymorphisms\n(Frank et al., 2007)", cols = c("black", "red"), ...)
@@ -97,10 +97,10 @@ nc.plot <- function(data = a_data, factor = "Alpha", pch.cex = 1.5, ...) {
 }
 
 
-#tiff("figure7abc.tiff", width=8, height=4, res=150, units="in")
+#tiff("figure7abcd.tiff", width=8, height=4, res=150, units="in")
 nc.fourplot <- function() {
   layout(matrix(1:4, nrow = 1, ncol = 4), widths = 1)
-  par(mar = c(4,3,3,1))
+  par(mar = c(4,3,3,1.4))
   nc.plot(a_data, factor = "Alpha")
   title(main = expression(paste(bold("(A) Effect of "), alpha)))
   vals = parse(text = paste("alpha == ", unique(a_data$Alpha)))
@@ -330,16 +330,16 @@ model.plot.d1 <- function(data = mgen, pch.cex = 1.5, frank=T,...) {
   #       lwd = 1, lty = 1, 
   #       pch = 21, bty = "n", pt.bg = cols[c(2,1)])
   
-  legend(x = "topleft", col = cols[c(3,1)], 
+  legend(x = "topleft", col = cols[c(2,1)], 
          legend = c(expression(paste(plain("A/A ("), italic(d)[1] == 1.5, ")")), 
                     expression(paste(plain("A/G, G/G ("), italic(d)[1] == 0.5, ")"))), lwd = 1, lty = 1, 
-         pch = 21, bty = "n", pt.bg = cols[c(3,1)])
+         pch = 21, bty = "n", pt.bg = cols[c(2,1)])
 }
 
 
 model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
   xs <- c(0.25, 1.75)
-  cols <- c("#FF0000", "#22BB22", "#000000")
+  cols <- c("#000000", "#22BB22", "#FF0000")
   plot.new()
   plot.window(xlim=c(0,2), ylim=c(0.5, 0.9))
   axis(1, at = xs, labels = c("\nChoose Accuracy", "\nAvoid Accuracy"))
@@ -387,17 +387,17 @@ model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
          angle = 90, length = 0.05, col=cols[1], lwd=2, ...)
   arrows(x0 = xs, y0 = ys, x1 = xs, y1 = ys - ses, 
          angle = 90, length = 0.05, col=cols[1], lwd=2, ...)
-  legend(x = "topleft", col = cols[c(3,1)], 
+  legend(x = "topleft", col = cols[c(1,3)], 
          legend = c(expression(paste(plain("C/C, C/T ("), italic(d)[2] == 0.5, ")")), 
                     expression(paste(plain("T/T ("), italic(d)[2] == 1.5, ")"))), lwd = 1, lty = 1, 
-         pch = 21, bty = "n", pt.bg = cols[c(3,1)])
+         pch = 21, bty = "n", pt.bg = cols[c(1,3)])
 }
 
 #tiff("figure6abc.tiff", width=6, height=4, res=150, units="in")
 
 model.triple <- function(...) {
   layout(matrix(1:3, nrow = 1, ncol = 3), widths = 1)
-  par(mar = c(4,3,3,1))
+  par(mar = c(4,3,3,1.4))
   model.plot.pd(...)
   title(main="(A) Parkinson's Disease\n(Simulations and Data)")
   model.plot.d1(...)
@@ -467,7 +467,7 @@ super.figure <- function(cols = c("#000000", "#22BB22", "#FF0000"), pch.cex = 1.
          angle = 90, length = 0.05, col=cols[3], lwd=2,...)
 }
 
-figure8.d1 <- function(data = mgen, colfunc=colorRampPalette(c("lightgreen", "darkgreen")),...) {
+figure9.d1 <- function(data = mgen, colfunc=colorRampPalette(c("lightgreen", "darkgreen")),...) {
   xs <- c(0.25, 1.75)
   cols <- c("red", "#22BB22", "black")
   plot.new()
@@ -522,7 +522,7 @@ figure8.d1 <- function(data = mgen, colfunc=colorRampPalette(c("lightgreen", "da
 }
 
 
-figure8.d2 <- function(data = mgen, colfunc=colorRampPalette(c("gold", "darkred")), ...) {
+figure9.d2 <- function(data = mgen, colfunc=colorRampPalette(c("gold", "darkred")), ...) {
   xs <- c(0.25, 1.75)
   plot.new()
   plot.window(xlim=c(0,2), ylim=c(0.5, 0.9))
@@ -576,13 +576,13 @@ figure8.d2 <- function(data = mgen, colfunc=colorRampPalette(c("gold", "darkred"
 }
 
 #tiff("figure8ab.tiff", width=6, height=4, res=150, units="in")
-figure8 <- function(data = merge(mpd, mgen, all=T)) {
+figure9 <- function(data = merge(mpd, mgen, all=T)) {
   layout(matrix(1:4, nrow = 1, ncol = 4), widths = c(1/2, 1, 1, 1/2))
   par(mar = c(4,3,3,1))
   plot.new()
-  figure8.d1(data)
+  figure9.d1(data)
   title(main = expression(paste(bold("(A) Effects of "), bold(italic(d))[1])))
-  figure8.d2(data)
+  figure9.d2(data)
   title(main = expression(paste(bold("(B) Effects of "), bold(italic(d))[2])))
   plot.new()
 
