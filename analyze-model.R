@@ -1,46 +1,39 @@
 library(lattice)
-#library(matlab)
+library(matlab)
 
 # ANalyze basic simulations
 source("functions.R")
 
 # Analysis of non-competitive model
 
-data <- read.table("sims-noncompetitive/sims-positive-negative-alpha-egs-noncomp.txt", 
-                   header=T,
-                   sep=","
-                   )
+canonical <- read.table(unzip("sims-noncompetitive/sims-positive-negative-alpha-egs-noncomp.zip"),
+                        header=T,
+                        sep=","
+                        )
 
 
 # Simpify for analysis
-s_data <- aggregate(data[c("ChooseA", "AvoidB", 
+a_canonical <- aggregate(canonical[c("ChooseA", "AvoidB", 
                            "PickA", "PickB",
                            "PickC", "PickD",
                            "PickE", "PickF")], 
-                    list(Alpha=data$Alpha, 
-                         EGS = data$EGS, 
-                         PosRwrd=data$PosRwrd, 
-                         NegRwrd=data$NegRwrd), 
+                    list(Alpha = canonical$Alpha, 
+                         EGS = canonical$EGS, 
+                         PosRwrd = canonical$PosRwrd, 
+                         NegRwrd = canonical$NegRwrd), 
                     mean)
 
 ## PSP
 
-approx.equal <- function(x, y) {
-  if (abs(x-y)/abs(min(c(x, y))) < 0.5) {
+
+approx.equal <- function(a, b) {
+  b <- binom.test(x=round(250 * a, 0), b, n=250)
+  if (b$p.value > 0.05) {
     T
   } else {
     F
   }
 }
-
-approx.equal <- function(x, y) {
-  if (abs(x-y) < 0.05) {
-    T
-  } else {
-    F
-  }
-}
-
 
 approx.order <- function(x, y) {
   if (approx.equal(x, y)) {
@@ -52,9 +45,9 @@ approx.order <- function(x, y) {
 
 vpattern <- Vectorize(approx.order)
 
-s_data$Pattern <- vpattern(s_data$ChooseA, s_data$AvoidB)
+a_canonical$Pattern <- vpattern(a_canonical$ChooseA, a_canonical$AvoidB)
 
-psp <- tapply(s_data$ChooseA, s_data$Pattern, length)
+psp <- tapply(a_canonical$ChooseA, a_canonical$Pattern, length)
 
 round(100 * psp / (sum(c(psp))), 2)
 
@@ -66,25 +59,8 @@ round(100 * psp / (sum(c(psp))), 2)
 # --------------------------
 
 
-paratu <- function() {
-  hist(s_data$ChooseA - s_data$AvoidB, 
-       xlim=c(-0.25, 1), col="grey", 
-       border = "white", 
-       breaks = seq(-0.25, 1, 0.025),
-       xlab = "Difference between Choose and Avoid",
-       ylab = "Frequency",
-       main = "Distribution of simulation results")
-  box(bty="o")
-  grid()
-  abline(h=0)
-}
-
-
-
-## Individual values
-
-a_data1 <- s_data
-a_data2 <- s_data
+a_data1 <- a_canonical
+a_data2 <- a_canonical
 
 a_data1$AvoidB <- NULL
 names(a_data1)[5] <- "Accuracy"
@@ -94,76 +70,10 @@ a_data2$ChooseA <- NULL
 names(a_data2)[5] <- "Accuracy"
 a_data2$Measure <- "Avoid"
 
-a_data <- merge(a_data1, a_data2, all=T)
+a_data_canonical <- merge(a_data1, a_data2, all=T)
 
-a_data <- subset(a_data, a_data$Alpha < 0.1)
-a_data <- subset(a_data, a_data$EGS > 0)
-#s_data <- subset(s_data, s_data$PosRwrd == 1)
-#s_data <- subset(s_data, s_data$NegRwrd == -1)
-
-
-plot.by.2factors(a_data, "Accuracy", "Measure", "Alpha", rng=c(0.4, 0.7, 0.1), legpos="topleft")
-
-plot.by.2factors(a_data, "Accuracy", "Measure", "EGS", rng=c(0.4, 0.7, 0.1), legpos="topleft")
-
-plot.by.2factors(a_data, "Accuracy", "Measure", "PosRwrd", rng=c(0.5, 0.7, 0.1), legpos="topleft")
-
-plot.by.2factors(a_data, "Accuracy", "Measure", "NegRwrd", rng=c(0.5,0.7,0.1), legpos="topleft")
-
-plot.by.2factors(s_data, "PickA", "EGS", "Alpha", legpos="topleft", rng=c(-0.2,0.1,0.1))
-
-plot.by.2factors(s_data, "PickA", "PosRwrd", "NegRwrd", legpos="topleft", rng=c(-0.7,0.3,0.1))
-
-plot.by.2factors(s_data, "PickB", "EGS", "Alpha", rng=c(-1,0.1,0.1), legpos="bottomleft")
-
-plot.by.2factors(subset(s_data, s_data$PosRwrd==1 & s_data$NegRwrd==-1), "PickB", "EGS", "Alpha", rng=c(-1,0.1,0.1), legpos="bottomleft")
-
-
-plot.by.2factors(s_data, "PickB", "PosRwrd", "NegRwrd", legpos="topleft", rng=c(-0.7,0.3,0.1))
-
-
-## Analysis of utility
-
-u_data <- NA
-for (option in c("A", "B", "C", "D", "E", "F")) {
-  sub <- s_data[1:6]
-  sub$Option <- rep(option, dim(sub)[1])
-  sub$Utility <- s_data[[paste("Pick", option, sep="")]]
-  if (! is.na(u_data)) {
-    u_data <- merge(u_data, sub, all=T)
-  } else {
-    u_data <- sub
-  }
-}
-
-plot.by.2factors(u_data, "Utility", "Alpha", "Option", legpos="topleft", rng=c(-0.7,0.3,0.1))
-plot.by.2factors(u_data, "Utility", "EGS", "Option", legpos="topleft", rng=c(-0.7,0.3,0.1))
-plot.by.2factors(u_data, "Utility", "PosRwrd", "Option", legpos="topleft", rng=c(-0.7,0.3,0.1))
-plot.by.2factors(u_data, "Utility", "NegRwrd", "Option", legpos="topleft", rng=c(-0.7,0.3,0.1))
-
-
-z <- subset(a_data, a_data$Alpha <= 0.1 & a_data$EGS == 0.2)
-
-plot.by.2factors(subset(z, z$PosRwrd %in% c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8) & z$NegRwrd %in% c(-0.5)), "Accuracy", "Measure", "PosRwrd", rng=c(0.5,  1, 0.1), legpos="topleft")
-
-
-# Simplified analysis
-
-s_an <- subset(s_data, s_data$Alpha %in% (seq(0, 10, 1) / 10) &
-                 s_data$EGS %in% (seq(0, 10, 1)/10) &
-                 s_data$PosRwrd %in% (seq(0, 10, 1) / 10) &
-                 s_data$NegRwrd %in% (seq(0, -10, -1) / 10)
-)
-s_an$Model <- paste("Run", 1:dim(s_an)[1]) 
-s_an$Alpha <- factor(s_an$Alpha)
-s_an$EGS <- factor(s_an$EGS)
-s_an$PosRwrd <- factor(s_an$PosRwrd)
-s_an$NegRwrd <- factor(s_an$NegRwrd)
-#summary(aov(Accuracy ~ (Measure * Alpha * EGS * PosRwrd * NegRwrd) + Error(Model), s_an))
-
-#summary(aov(Accuracy ~ (Measure * Alpha * EGS * PosRwrd) + Error(Model), s_an))
-
-
+a_data_canonical <- subset(a_data_canonical, a_data_canonical$Alpha < 0.1)
+a_data_canonical <- subset(a_data_canonical, a_data_canonical$EGS > 0)
 
 ## Original Data from Michael Frank
 
@@ -188,93 +98,20 @@ frank2007b <- data.frame(Choose = c(73.0866648, 68.80067095),
 
 
 
-data <- read.table("simulations-new-alpha-egs.txt", header=T)
-plot(aggregate(data$AvoidB, list(data$Alpha), mean), type="l")
-plot(aggregate(data$Choose, list(data$Alpha), mean), type="l")
-
-plot(aggregate(data$AvoidB, list(data$EGS), mean), type="l")
-plot(aggregate(data$Choose, list(data$EGS), mean), type="l")
-
-plot.by.2factors(data, "AvoidB", "Alpha", "EGS")
-plot.by.2factors(data, "ChooseA", "Alpha", "EGS")
-
-findings <- c(0.6766, 0.6325)
-
-data$DAvoid <- data$AvoidB - 0.6766
-data$DChoose <- data$ChooseA - 0.6325
-data$Energy <- data$DAvoid ** 2 + data$DChoose ** 2
-
-penergy <- function(a, e, av, ch) {
-  ((a - 0.2)**2)/100  + ((e - 0.0)**2)/100 + ((av - 0.7) ** 2 + (ch - 0.7) ** 2)
-  #(av - 0.70) ** 2 + (ch - 0.70) ** 2
-}
-
-energy <- function(a, e, av, ch) {
-  ((av - 0.7) ** 2 + (ch - 0.7) ** 2)
-  #(av - 0.70) ** 2 + (ch - 0.70) ** 2
-}
 
 
-data$PEnergy <- penergy(data$Alpha, data$EGS, data$AvoidB, data$ChooseA)
-data$Energy <- energy(data$Alpha, data$EGS, data$AvoidB, data$ChooseA)
-
-subset(data, data$Energy == min(data$Energy))
-subset(data, data$PEnergy == min(data$PEnergy))
-
-e <- tapply(data$Energy, list(data$Alpha, data$EGS), mean)
-e <- e[2:21, 1:21]
-e <- sqrt(e)
-
-filled.contour(e, color.palette = jet.colors, 
-               xlim = c(0.05, 1), ylim = c(0, 1),
-               xlab = "Alpha", ylab ="EGS",
-               main = "Energy")
-
-pe <- tapply(data$PEnergy, list(data$Alpha, data$EGS), mean)
-pe <- pe[2:21, 1:21]
-pe <- sqrt(pe)
-
-filled.contour(pe, color.palette = jet.colors, 
-               xlim = c(0.05, 1), ylim = c(0, 1),
-               xlab = "Alpha", ylab ="EGS",
-               main = "Energy")
-
-
-
-plot.by.2factors(subset(data, data$EGS <= 0.3), "Energy", "Alpha", "EGS", legpos="topright", rng=c(0,0.1,0.01))
-
-
-E <- min(data$Energy[data$Alpha <= 0.2])
-subset(data, data$Energy == E)
-
-E <- min(data$Energy[data$Alpha <= 0.1])
-subset(data, data$Energy == E)
-
-E <- min(data$Energy)
-subset(data, data$Energy == E)
-
-plot.by.2factors(subset(data, data$Alpha <= 0.2), "Energy", "EGS", "Alpha", legpos="topright", rng=c(0, 0.04, 0.01))
-
-
-asA <- data[c(1:3)]
-asB <- data[c(1:2,4)]
-names(asA)[3] <- "Accuracy"
-names(asB)[3] <- "Accuracy"
-asA$Strategy <- "Choose"
-asB$Strategy <- "Avoid"
-as <- merge(asA, asB, all=T)
-
-plot.by.2factors(subset(as, as$Alpha %in% seq(0,2,0.1)), variable = "Accuracy", factor1 = "Strategy", factor2 = "Alpha", rng=c(0.5, 0.9, .1))
-
-plot.by.2factors(subset(as, as$EGS %in% seq(0,2,0.1) & as$Alpha > 0), variable = "Accuracy", factor1 = "Strategy", factor2 = "EGS", rng=c(0.5, 0.9, .1))
-
-
+## COMPETITIVE MODEL
+## =================
 ## Other analysis: D1 vs. D2
 ## =========================
 
-base.data <- read.table("sims-alpha-<0,0.1,0.001>-comp.txt", header=T, sep=",")
+base.data <- read.table(unzip("sims-competitive/sims-alpha-0,0.1,0.001-comp.zip"), header=T, sep=",")
 a_base <- aggregate(base.data[c("ChooseA", "AvoidB")], list(Alpha=base.data$Alpha, EGS=base.data$EGS), mean)
 
+
+midpoint <- function(a, b) {
+  round(mean(c(a, b)) * 20, 0) / 20
+}
 
 
 energy.seniors <- function(set, alpha) {
@@ -290,9 +127,12 @@ for (a in unique(a_base$Alpha)) {
 }
 
 
+# Results is alpha = 0.008
 subset(a_base, a_base$EnergySeniors == min(a_base$EnergySeniors))
 
-# Now the genetic data
+# -------------------------------------------------------
+# And now, let's find the best match for the genetic data
+# -------------------------------------------------------
 
 a <- colMeans(frank2007a[1:2])
 b <- colMeans(frank2007b[1:2])
@@ -312,14 +152,15 @@ for (a in unique(a_base$Alpha)) {
   a_base$EnergyGenetics[a_base$Alpha == a] <- energy.genetics(a_base, a)
 }
 
+# Best match is for alpha = 0.018
 
 subset(a_base, a_base$EnergyGenetics == min(a_base$EnergyGenetics))
 
 ## ------------------------------------------------------------------------- ##
-## PARKINSON
+## PARKINSON DATA (ALPHA = 0.008, EGS = 0.1)
 ## ------------------------------------------------------------------------- ##
 
-pd_sims <- read.table("sims-d1-d2-alpha-0.008-egs-0.1-comp.txt", 
+pd_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.008-egs-0.1-comp.zip"), 
                       header=T, 
                       sep=",")
 apd <- aggregate(pd_sims[c("ChooseA", "AvoidB")], 
@@ -420,21 +261,12 @@ names(mapdB)[3] <- "Accuracy"
 mapd <- merge(mapdA, mapdB, all=T)
 
 
-plot.by.2factors(subset(mapd, mapd$D1 %in% c(0.1) & mapd$D2 %in% c(2)), 
-                 "Accuracy", "Measure", "D1", rng=c(0.5,  0.9, 0.1), legpos="topleft")
-plot.by.2factors(subset(mapd, mapd$D1 %in% c(2) & mapd$D2 %in% c(0.1)), 
-                 "Accuracy", "Measure", "D1", rng=c(0.5,  0.9, 0.1), legpos="topleft")
-
-z <- tapply(apd$Energy2004, list(D1=apd$D1, D2=apd$D2), mean)
-z[z==1] <- 0.11
-filled.contour(sqrt(z), color.palette = jet.colors)
-lines(x = c(0,1), y=c(1,0))
 
 ## ------------------------------------------------------------------------- ##
 ## GENETICS
 ## ------------------------------------------------------------------------- ##
 
-gen_sims <- read.table("sims-d1-d2-alpha-0.018-egs-0.1-comp.txt", 
+gen_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.018-egs-0.1-comp.zip"), 
                        header=T, 
                        sep=",")
 agen <- aggregate(gen_sims[c("ChooseA", "AvoidB")], 
@@ -442,9 +274,6 @@ agen <- aggregate(gen_sims[c("ChooseA", "AvoidB")],
                        D2=gen_sims$D2), 
                   mean)
 
-midpoint <- function(a, b) {
-  round(mean(c(a, b)) * 20, 0) / 20
-}
 
 
 
@@ -528,16 +357,6 @@ names(magenB)[3] <- "Accuracy"
 magen <- merge(magenA, magenB, all=T)
 
 
-plot.by.2factors(subset(magen, 
-                        magen$D1 %in% c(0.5, 1.5) & magen$D2 %in% c(1.1)), 
-                 "Accuracy", "Measure", "D1", 
-                 rng=c(0.5,  0.9, 0.1), 
-                 legpos="topleft")
-
-plot.by.2factors(subset(magen, 
-                        magen$D2 %in% c(0.5, 1.5) & magen$D1 %in% c(1)), 
-                 "Accuracy", "Measure", "D2", 
-                 rng=c(0.5,  0.9, 0.1), legpos="topleft")
 
 
 mgenA <- gen_sims
@@ -553,20 +372,6 @@ names(mgenB)[3] <- "Accuracy"
 mgen <- merge(mgenA, mgenB, all=T)
 
 
-plot.by.2factors(subset(mgen, 
-                        mgen$D1 %in% c(0.5, 1.5) & mgen$D2 %in% c(1)), 
-                 "Accuracy", "Measure", "D1", 
-                 rng=c(0.5,  0.9, 0.1), 
-                 legpos="topleft")
-
-plot.by.2factors(subset(mgen, 
-                        mgen$D2 %in% c(0.5, 1.5) & mgen$D1 %in% c(1)), 
-                 "Accuracy", "Measure", "D2", 
-                 rng=c(0.5,  0.9, 0.1), legpos="topleft")
-
-z <- tapply(agen$Energy2007, list(D1=agen$D1, D2=agen$D2), mean)
-z[z==1] <- 0.11
-filled.contour(sqrt(z), color.palette = jet.colors)
 
 calculate.q.2007 <- function(val) {
   q = 2 - val
@@ -579,28 +384,192 @@ calculate.q.2004 <- function(val) {
   z/3
 } 
 
+## --------------------------------------------------------------- ##
+## MODEL COMPARISON
+## --------------------------------------------------------------- ##
 
-data2 <- read.table("sims-noncompetitive-reverse/sims-positive-negative-alpha-egs-noncompetitive-reverse.txt", 
-                   header=T,
-                   sep=","
+frank2004points <- c(frank2004$Choose, frank2004$Avoid)
+
+frank2007points <- c(frank2007a$Choose, frank2007a$Avoid, frank2007b$Choose, frank2007b$Avoid)
+
+mybic <- function(predictions, data, npars) {
+  n <- length(predictions)
+  k <- npars
+  
+  rss <- sum((predictions - data) ** 2)
+  n + n * log(2 * pi) + n * log(rss / n) + log(n) * (k + 1)
+}
+
+rmse <- function(predictions, data) {
+  sqrt(mean((predictions - data) ** 2))
+}
+
+
+## Calculate a vector of values for Competitive model
+
+z1 <- subset(mpd, mpd$D1==1 & mpd$D2 == 1)
+z2 <- subset(mpd, mpd$D1==0.2 & mpd$D2 == 2)
+z3 <- subset(mpd, mpd$D1==2 & mpd$D2 == 0.2)
+z <- merge(z1, z2, all=T)
+z <- merge(z, z3, all=T)
+az <- aggregate(z[c("Accuracy")], list(D1=z$D1, Measure=z$Measure), mean)
+
+c2004points <- az$Accuracy[c(5,6,4,2,3,1)] * 100
+
+## The best theoretical predictiojns for the canonical model: 
+## "Off" PD data is simply replaced by control data
+
+## Calculate a vector of values for Competitive model
+w1 <- subset(mgen, mgen$D1==0.5 & mgen$D2 == 1)
+w2 <- subset(mgen, mgen$D1==1.5 & mgen$D2 == 1)
+w3 <- subset(mgen, mgen$D2==0.5 & mgen$D1 == 1)
+w4 <- subset(mgen, mgen$D2==1.5 & mgen$D1 == 1)
+w <- merge(w1, w2, all=T)
+w <- merge(w, w3, all=T)
+w <- merge(w, w4, all=T)
+aw <- aggregate(w[c("Accuracy")], list(D1=w$D1, D2=w$D2, Measure=w$Measure), mean)
+
+c2007points <- aw$Accuracy[c(7,6,3,2,5,8,1,4)] * 100
+
+
+# Separate fitting for the three conditions of PD
+
+s_data$PD_Controls_Energy <- 0
+s_data$PD_On_Energy <- 0
+s_data$PD_Off_Energy < 0
+
+s_data$Gen_D1_Up <-0 
+s_data$Gen_D1_Down <-0 
+s_data$Gen_D2_Up <-0 
+s_data$Gen_D2_Down <-0 
+
+for (a in unique(s_data$Alpha)) {
+  for (s in unique(s_data$EGS)) {
+    for (rplus in unique(s_data$PosRwrd)) {
+      for (rminus in unique(s_data$NegRwrd)) {
+        psub <- subset(s_data, s_data$Alpha == a &
+                        s_data$EGS == s &
+                        s_data$PosRwrd == rplus &
+                        s_data$NegRwrd == rminus)
+        pdata <- psub[c("ChooseA", "AvoidB")] * 100
+        
+        # Parkinson's data
+        
+        esub <- subset(frank2004, frank2004$Group == "Controls")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$PD_Controls_Energy[s_data$Alpha == a &
+                                    s_data$EGS == s &
+                                    s_data$PosRwrd == rplus &
+                                    s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+        esub <- subset(frank2004, frank2004$Group == "PD, On Medication")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$PD_On_Energy[s_data$Alpha == a &
+                              s_data$EGS == s &
+                              s_data$PosRwrd == rplus &
+                              s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+        esub <- subset(frank2004, frank2004$Group == "PD, Off Medication")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$PD_Off_Energy[s_data$Alpha == a &
+                               s_data$EGS == s &
+                               s_data$PosRwrd == rplus &
+                               s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+        # Genetics dataset
+        esub <- subset(frank2007a, frank2007a$Group == "A/A")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$Gen_D1_Up[s_data$Alpha == a &
+                               s_data$EGS == s &
+                               s_data$PosRwrd == rplus &
+                               s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+        esub <- subset(frank2007a, frank2007a$Group == "G/G, G/A")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$Gen_D1_Down[s_data$Alpha == a &
+                           s_data$EGS == s &
+                           s_data$PosRwrd == rplus &
+                           s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+        esub <- subset(frank2007b, frank2007b$Group == "T/T")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$Gen_D2_Up[s_data$Alpha == a &
+                           s_data$EGS == s &
+                           s_data$PosRwrd == rplus &
+                           s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+        esub <- subset(frank2007b, frank2007b$Group == "C/C, C/T")
+        edata <- esub[c("Choose", "Avoid")] 
+        s_data$Gen_D2_Down[s_data$Alpha == a &
+                             s_data$EGS == s &
+                             s_data$PosRwrd == rplus &
+                             s_data$NegRwrd == rminus] <- sum(c((pdata - edata)**2))
+        
+      }
+    }
+  }
+}
+
+subset(s_data, s_data$PD_Controls_Energy == min(s_data$PD_Controls_Energy))
+subset(s_data, s_data$PD_On_Energy == min(s_data$PD_On_Energy))
+subset(s_data, s_data$PD_Off_Energy == min(s_data$PD_Off_Energy))
+
+points <- rbind(subset(s_data, s_data$PD_Controls_Energy == min(s_data$PD_Controls_Energy)),
+                subset(s_data, s_data$PD_On_Energy == min(s_data$PD_On_Energy)),
+                subset(s_data, s_data$PD_Off_Energy == min(s_data$PD_Off_Energy)))
+
+nc2004e_points <- c(points$ChooseA, points$AvoidB)
+
+mybic(nc2004e_points, frank2004points, 4)
+mybic(c2004points, frank2004points, 6)
+mybic(nc2004e_points, frank2004points, 4) - mybic(c2004points, frank2004points, 6)
+
+
+
+# Genetics data
+
+subset(s_data, s_data$Gen_D1_Up == min(s_data$Gen_D1_Up))
+subset(s_data, s_data$Gen_D1_Down == min(s_data$Gen_D1_Down))
+subset(s_data, s_data$Gen_D2_Up == min(s_data$Gen_D2_Up))
+subset(s_data, s_data$Gen_D2_Down == min(s_data$Gen_D2_Down))
+
+apoints <- rbind(subset(s_data, s_data$Gen_D1_Up == min(s_data$Gen_D1_Up)),
+                 subset(s_data, s_data$Gen_D1_Down == min(s_data$Gen_D1_Down)))
+
+bpoints <- rbind(subset(s_data, s_data$Gen_D2_Down == min(s_data$Gen_D2_Down)),
+                 subset(s_data, s_data$Gen_D2_Up == min(s_data$Gen_D2_Up)))
+
+nc2007e_points <- c(apoints$ChooseA, apoints$AvoidB, bpoints$ChooseA, bpoints$AvoidB)
+
+mybic(nc2007e_points, frank2007points, 4)
+mybic(c2007points, frank2007points, 6)
+mybic(nc2007e_points, frank2007points, 4) - mybic(c2007points, frank2007points, 6)
+
+
+## Results from reverse simulations 
+
+
+anticanonical <- read.table(unzip("sims-noncompetitive-reverse/sims-positive-negative-alpha-egs-noncompetitive-reverse.zip"), 
+                            header=T,
+                            sep=","
 )
 
 
 # Simplify for analysis
-s_data2 <- aggregate(data2[c("ChooseA", "AvoidB", 
-                           "PickA", "PickB",
-                           "PickC", "PickD",
-                           "PickE", "PickF")], 
-                    list(Alpha=data2$Alpha, 
-                         EGS = data2$EGS, 
-                         PosRwrd=data2$PosRwrd, 
-                         NegRwrd=data2$NegRwrd), 
-                    mean)
+a_anticanonical <- aggregate(anticanonical[c("ChooseA", "AvoidB", 
+                             "PickA", "PickB",
+                             "PickC", "PickD",
+                             "PickE", "PickF")], 
+                     list(Alpha=anticanonical$Alpha, 
+                          EGS = anticanonical$EGS, 
+                          PosRwrd=anticanonical$PosRwrd, 
+                          NegRwrd=anticanonical$NegRwrd), 
+                     mean)
 
 ## Individual values
 
-a_data1 <- s_data2
-a_data2 <- s_data2
+a_data1 <- a_anticanonical
+a_data2 <- a_anticanonical
 
 a_data1$AvoidB <- NULL
 names(a_data1)[5] <- "Accuracy"
@@ -610,7 +579,31 @@ a_data2$ChooseA <- NULL
 names(a_data2)[5] <- "Accuracy"
 a_data2$Measure <- "Avoid"
 
-a_data <- merge(a_data1, a_data2, all=T)
+a_data_anticanonical <- merge(a_data1, a_data2, all=T)
 
-a_data <- subset(a_data, a_data$Alpha < 0.1)
-a_data <- subset(a_data, a_data$EGS > 0)
+a_data_anticanonical <- subset(a_data_anticanonical, a_data_anticanonical$Alpha < 0.1)
+a_data_anticanonical <- subset(a_data_anticanonical, a_data_anticanonical$EGS > 0)
+
+
+a_anticanonical$Pattern <- vpattern(a_anticanonical$ChooseA, a_anticanonical$AvoidB)
+
+psp2 <- tapply(a_anticanonical$ChooseA, a_anticanonical$Pattern, length)
+
+round(100 * psp2 / (sum(c(psp2))), 2)
+
+biological <- merge(pd_sims, gen_sims, all=T)
+biological$Pattern <- vpattern(biological$ChooseA, biological$AvoidB)
+
+psp3 <- tapply(biological$ChooseA, biological$Pattern, length)
+
+round(100 * psp3 / (sum(c(psp3))), 2)
+
+
+
+s_data$Pattern <- vpattern(s_data$ChooseA, s_data$AvoidB)
+
+psp <- tapply(s_data$ChooseA, s_data$Pattern, length)
+
+round(100 * psp / (sum(c(psp))), 2)
+
+

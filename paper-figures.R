@@ -1,5 +1,5 @@
 library(lattice)
-#library(matlab)
+library(matlab)
 
 # ANalyze basic simulations
 source("functions.R")
@@ -66,6 +66,10 @@ frank.triple <- function(...) {
   frank.plot(frank2007b, title = "(C) DRD2 Polymorphisms\n(Frank et al., 2007)", cols = c("black", "red"), ...)
 }
 
+figure04 <- function() {
+  frank.triple()
+} 
+
 ## ------------------------------------------------------------------------- ##
 ## The Non-Competitive Model Simulations
 ## ------------------------------------------------------------------------- ##
@@ -97,11 +101,11 @@ nc.plot <- function(data = a_data, factor = "Alpha", pch.cex = 1.5, ...) {
 }
 
 
-#tiff("figure7abcd.tiff", width=8, height=4, res=150, units="in")
-nc.fourplot <- function() {
+#tiff("figure7abc.tiff", width=8, height=4, res=150, units="in")
+nc.fourplot <- function(data=a_data_canonical) {
   layout(matrix(1:4, nrow = 1, ncol = 4), widths = 1)
-  par(mar = c(4,3,3,1.4))
-  nc.plot(a_data, factor = "Alpha")
+  par(mar = c(4, 3, 3, 1.4))
+  nc.plot(data, factor = "Alpha")
   title(main = expression(paste(bold("(A) Effect of "), alpha)))
   vals = parse(text = paste("alpha == ", unique(a_data$Alpha)))
   legend(x = "topleft", legend = vals, 
@@ -112,7 +116,7 @@ nc.fourplot <- function() {
          col = grey.colors(n = length(unique(a_data$Alpha))),
          pt.bg = grey.colors(n = length(unique(a_data$Alpha))))
   
-  nc.plot(a_data, factor="EGS")
+  nc.plot(data, factor="EGS")
   title(main = expression(paste(bold("(B) Effect of "), italic("s"))))
   vals = parse(text = paste("italic('s') == ", unique(a_data$EGS)))
   legend(x = 1, y=0.708, legend = vals, 
@@ -123,7 +127,7 @@ nc.fourplot <- function() {
          col = grey.colors(n = length(unique(a_data$EGS))),
          pt.bg = grey.colors(n = length(unique(a_data$EGS))))
   
-  nc.plot(a_data, factor="PosRwrd")
+  nc.plot(data, factor="PosRwrd")
   title(main = expression(paste(bold("(C) Effect of "),
                                 italic(R) ^ plain("+")
                                 )))
@@ -137,7 +141,7 @@ nc.fourplot <- function() {
          col = grey.colors(n = length(unique(a_data$PosRwrd))),
          pt.bg = grey.colors(n = length(unique(a_data$PosRwrd))))
   
-  nc.plot(a_data, factor="NegRwrd")
+  nc.plot(data, factor="NegRwrd")
   title(main = expression(paste(bold("(D) Effect of "),
                                 italic(R) ^ plain("-"))))
   vals = parse(text = paste("italic('R') ^ plain('-') == ", unique(a_data$NegRwrd)))
@@ -152,6 +156,9 @@ nc.fourplot <- function() {
   
 }
 
+figure07 <- function() {
+  nc.fourplot(a_data)
+}
 
 plot.alpha.optimized <- function(data = a_base) {
   plot.new()
@@ -330,16 +337,16 @@ model.plot.d1 <- function(data = mgen, pch.cex = 1.5, frank=T,...) {
   #       lwd = 1, lty = 1, 
   #       pch = 21, bty = "n", pt.bg = cols[c(2,1)])
   
-  legend(x = "topleft", col = cols[c(2,1)], 
+  legend(x = "topleft", col = cols[c(3,1)], 
          legend = c(expression(paste(plain("A/A ("), italic(d)[1] == 1.5, ")")), 
                     expression(paste(plain("A/G, G/G ("), italic(d)[1] == 0.5, ")"))), lwd = 1, lty = 1, 
-         pch = 21, bty = "n", pt.bg = cols[c(2,1)])
+         pch = 21, bty = "n", pt.bg = cols[c(3,1)])
 }
 
 
 model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
   xs <- c(0.25, 1.75)
-  cols <- c("#000000", "#22BB22", "#FF0000")
+  cols <- c("#FF0000", "#22BB22", "#000000")
   plot.new()
   plot.window(xlim=c(0,2), ylim=c(0.5, 0.9))
   axis(1, at = xs, labels = c("\nChoose Accuracy", "\nAvoid Accuracy"))
@@ -387,17 +394,17 @@ model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
          angle = 90, length = 0.05, col=cols[1], lwd=2, ...)
   arrows(x0 = xs, y0 = ys, x1 = xs, y1 = ys - ses, 
          angle = 90, length = 0.05, col=cols[1], lwd=2, ...)
-  legend(x = "topleft", col = cols[c(1,3)], 
+  legend(x = "topleft", col = cols[c(3,1)], 
          legend = c(expression(paste(plain("C/C, C/T ("), italic(d)[2] == 0.5, ")")), 
                     expression(paste(plain("T/T ("), italic(d)[2] == 1.5, ")"))), lwd = 1, lty = 1, 
-         pch = 21, bty = "n", pt.bg = cols[c(1,3)])
+         pch = 21, bty = "n", pt.bg = cols[c(3,1)])
 }
 
 #tiff("figure6abc.tiff", width=6, height=4, res=150, units="in")
 
 model.triple <- function(...) {
   layout(matrix(1:3, nrow = 1, ncol = 3), widths = 1)
-  par(mar = c(4,3,3,1.4))
+  par(mar = c(4, 3, 3, 1.4))
   model.plot.pd(...)
   title(main="(A) Parkinson's Disease\n(Simulations and Data)")
   model.plot.d1(...)
@@ -467,6 +474,35 @@ super.figure <- function(cols = c("#000000", "#22BB22", "#FF0000"), pch.cex = 1.
          angle = 90, length = 0.05, col=cols[3], lwd=2,...)
 }
 
+
+
+figure08 <- function() {
+  layout(matrix(c(1,2,3,3), byrow=T, nrow=2))
+  par(mar=c(1,2,2,2))
+  rpsp1 <- round(100 * psp / (sum(c(psp))), 2)
+  pie(rpsp1, labels=c("Choose = Avoid", "Choose > Avoid"), 
+      col=rev(grey.colors(3))[2:3], border="white", edges = 30000)
+  text(x=c(-0.25, 0.35), y=c(0.25, -0.25), 
+       labels= paste(rpsp1, "%", sep=""), col=c("black",  "white"))
+  title(main="(A) Canonical Model (Fig. 6A)")
+  
+  
+  rpsp3 <- round(100 * psp3 / (sum(c(psp3))), 2)
+  pie(rpsp3, labels=c("Choose < Avoid", "Choose = Avoid", "Choose > Avoid"), 
+      col=rev(grey.colors(3)), border="white", edges = 30000)
+  text(x=c(0.15, -0.45, 0.15), y=c(0.35,0,  -0.35), 
+       labels= paste(rpsp3, "%", sep=""), col=c("black", "black", "white"))
+  title(main="(B) Biological, Competitive Model (Fig. 6B)")
+  
+  rpsp2 <- round(100 * psp2 / (sum(c(psp2))), 2)
+  pie(rpsp2, labels=c("Choose < Avoid", "Choose = Avoid"), 
+      col=rev(grey.colors(3))[1:2], border="white", edges = 30000)
+  text(x=c(0.35, -0.25), y=c(0.25, -0.25), 
+       labels= paste(rpsp2, "%", sep=""), col=c("black"))
+  title(main="(C) Anti-Canonical Model", sub="Parameter Space Partitioning")
+  
+}
+
 figure9.d1 <- function(data = mgen, colfunc=colorRampPalette(c("lightgreen", "darkgreen")),...) {
   xs <- c(0.25, 1.75)
   cols <- c("red", "#22BB22", "black")
@@ -520,7 +556,6 @@ figure9.d1 <- function(data = mgen, colfunc=colorRampPalette(c("lightgreen", "da
          bty="n")
   
 }
-
 
 figure9.d2 <- function(data = mgen, colfunc=colorRampPalette(c("gold", "darkred")), ...) {
   xs <- c(0.25, 1.75)
@@ -576,17 +611,18 @@ figure9.d2 <- function(data = mgen, colfunc=colorRampPalette(c("gold", "darkred"
 }
 
 #tiff("figure8ab.tiff", width=6, height=4, res=150, units="in")
-figure9 <- function(data = merge(mpd, mgen, all=T)) {
+figure09 <- function(data = merge(mpd, mgen, all=T)) {
   layout(matrix(1:4, nrow = 1, ncol = 4), widths = c(1/2, 1, 1, 1/2))
   par(mar = c(4,3,3,1))
   plot.new()
-  figure9.d1(data)
+  figure8.d1(data)
   title(main = expression(paste(bold("(A) Effects of "), bold(italic(d))[1])))
-  figure9.d2(data)
+  figure8.d2(data)
   title(main = expression(paste(bold("(B) Effects of "), bold(italic(d))[2])))
   plot.new()
 
 }
+
 
 
 #tiff("figureB1.tiff", width=6, height=4, res=150, units="in")
@@ -636,6 +672,14 @@ figb1 <- function() {
         ylab = "MSE")
 }
 
+figure10 <- function() {
+  nc.fourplot(a_data2)
+}
+
+figure11 <- function() {
+  model.triple()
+}
+
 figb2 <- function() {
   plot.new()
   plot.window(xlim=c(0,2), ylim=c(0.0, 0.03))
@@ -648,7 +692,7 @@ figb2 <- function() {
   # PD experiment
 
   qvals <- sort(unique(apd$D1))
-  fvals <- sapply(vals, calculate.q.2004) 
+  fvals <- sapply(qvals, calculate.q.2004) 
   lines(x = qvals, y=fvals, col="black", lwd=2)
   points(x = qvals[fvals == min(fvals)],
          y = min(fvals),
@@ -683,4 +727,6 @@ figb2 <- function() {
         xlab = expression(paste(plain("Meta-parameter "), italic(q))),
         ylab = "MSE")
 }
+
+
 
