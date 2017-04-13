@@ -269,6 +269,10 @@ mapd <- merge(mapdA, mapdB, all=T)
 gen_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.018-egs-0.1-comp.zip"), 
                        header=T, 
                        sep=",")
+gen_sims <- read.table(unzip("sims-competitive-alternative/final.zip"), 
+                       header=T, 
+                       sep=",")
+
 agen <- aggregate(gen_sims[c("ChooseA", "AvoidB")], 
                   list(D1=gen_sims$D1, 
                        D2=gen_sims$D2), 
