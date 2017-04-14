@@ -163,6 +163,10 @@ subset(a_base, a_base$EnergyGenetics == min(a_base$EnergyGenetics))
 pd_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.008-egs-0.1-comp.zip"), 
                       header=T, 
                       sep=",")
+pd_sims <- read.table(unzip("sims-competitive-alternative/final-pd.zip"), 
+                      header=T, 
+                      sep=",")
+
 apd <- aggregate(pd_sims[c("ChooseA", "AvoidB")], 
                  list(D1=pd_sims$D1, D2=pd_sims$D2), 
                  mean)
@@ -269,7 +273,7 @@ mapd <- merge(mapdA, mapdB, all=T)
 gen_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.018-egs-0.1-comp.zip"), 
                        header=T, 
                        sep=",")
-gen_sims <- read.table(unzip("sims-competitive-alternative/final.zip"), 
+gen_sims <- read.table(unzip("sims-competitive-alternative/final-genetics.zip"), 
                        header=T, 
                        sep=",")
 
