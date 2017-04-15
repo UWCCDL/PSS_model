@@ -1,4 +1,4 @@
-Alpha, EGS, ChooseA, AvoidB, PickA, PickB, PickC, PickD, PickE, PickF
+Alpha, EGS, ChooseA, AvoidB, PickA, PickB, PickC, PickD, PickE, PickF, DontPickA, DontPickB, DontPickC, DontPickD, DontPickE, DontPickF
 0.001,   0.1, .5625,  0.25, .0048, -.029, .0078, -0.03, -.001, -.016, -.027, .0096, -.029, -.008, -.012, -.011
 0.001,   0.1, .4375,  0.75, 0.002, -.019, -.004, -.023, -.002, -.023, -.028, .0003, -.024, -.003, -.011, -.003
 0.001,   0.1, .5625,   0.5, .0032, -.028, -.006, -.022, -.009, -.016, -.033, .0074, -.027, .0002, -.023, -.009

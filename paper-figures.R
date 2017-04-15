@@ -284,7 +284,7 @@ model.plot.pd <- function(data = mpd, pch.cex = 1.5, frank=T, ...) {
 }
 
 
-model.plot.d1 <- function(data = mgen, pch.cex = 1.5, frank=T,...) {
+model.plot.d1 <- function(data = mgen, low=0.5, high=0.5, pch.cex = 1.5, frank=T,...) {
   xs <- c(0.25, 1.75)
   cols <- c("#000000", "#22BB22", "#FF0000")
   plot.new()
@@ -314,7 +314,7 @@ model.plot.d1 <- function(data = mgen, pch.cex = 1.5, frank=T,...) {
   
   
   # A/A
-  sub <- subset(data, data$D1 == 1.2 & data$D2 == 1.0)
+  sub <- subset(data, data$D1 == high & data$D2 == 1.0)
   ys <- rev(tapply(sub$Accuracy, sub$Measure, mean))
   ses <- rev(tapply(sub$Accuracy, sub$Measure, se))
   points(x = xs, y = ys, bg=cols[2], pch=21, col = cols[2], cex=pch.cex)
@@ -325,7 +325,7 @@ model.plot.d1 <- function(data = mgen, pch.cex = 1.5, frank=T,...) {
          angle = 90, length = 0.05, col=cols[2], lwd=2, ...)
   
   # A/G, G/G
-  sub <- subset(data, data$D1 == 0.8 & data$D2 == 1)
+  sub <- subset(data, data$D1 == low & data$D2 == 1)
   ys <- rev(tapply(sub$Accuracy, sub$Measure, mean))
   ses <- rev(tapply(sub$Accuracy, sub$Measure, se))
   points(x = xs, y = ys, bg=cols[1], pch=21, col = cols[1], cex=pch.cex)
@@ -346,7 +346,7 @@ model.plot.d1 <- function(data = mgen, pch.cex = 1.5, frank=T,...) {
 }
 
 
-model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
+model.plot.d2 <- function(data = mgen, low = 0.5, high = 1.5, pch.cex = 1.5, frank=T, ...) {
   xs <- c(0.25, 1.75)
   cols <- c("#FF0000", "#22BB22", "#000000")
   plot.new()
@@ -376,7 +376,7 @@ model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
   
   
   # T/T
-  sub <- subset(data, data$D1 == 1.0 & data$D2 == 1.5)
+  sub <- subset(data, data$D1 == 1.0 & data$D2 == high)
   ys <- rev(tapply(sub$Accuracy, sub$Measure, mean))
   ses <- rev(tapply(sub$Accuracy, sub$Measure, se))
   points(x = xs, y = ys, bg=cols[3], pch=21, col = cols[3], cex=pch.cex)
@@ -387,7 +387,7 @@ model.plot.d2 <- function(data = mgen, pch.cex = 1.5, frank=T, ...) {
          angle = 90, length = 0.1, col=cols[3], ...)
   
   # C/C, C/T
-  sub <- subset(data, data$D1 == 1.0 & data$D2 == 0.5)
+  sub <- subset(data, data$D1 == 1.0 & data$D2 == low)
   ys <- rev(tapply(sub$Accuracy, sub$Measure, mean))
   ses <- rev(tapply(sub$Accuracy, sub$Measure, se))
   points(x = xs, y = ys, bg=cols[1], pch=21, col = cols[1], cex=pch.cex)

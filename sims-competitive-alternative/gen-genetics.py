@@ -15,8 +15,8 @@ TMPLT = """
 (load "../pss-device.lisp")
 (load "../pss-addition.lisp")
 (load "../pss-simulations.lisp")
-(defparameter *params* '((:alpha . 0.018) (:EGS . 0.1)))
-(with-open-file (out "sims-d1-d2-alpha-0.018-egs-0.1-block%02d-comp.txt" :direction :output 
+(defparameter *params* '((:alpha . 0.038) (:EGS . 0.1)))
+(with-open-file (out "sims-d1-d2-alpha-0.038-egs-0.1-block%02d-comp.txt" :direction :output 
 		     :if-exists :overwrite :if-does-not-exist :create)
   (simulate-d1-d2 "../pss-model-new-equation.lisp"
                   250
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     i = 1
     for b1 in blocks:
         for b2 in blocks:
-            fout = open("sims-d1-d2-alpha-0.018-egs-0.1-block%02d-comp.lisp" % i, 'w')
+            fout = open("sims-d1-d2-alpha-0.038-egs-0.1-block%02d-comp.lisp" % i, 'w')
             s = TMPLT % (i, b1[0], b1[1] + 0.01, b2[0], b2[1] + 0.01)
             fout.write(s)
             fout.flush()

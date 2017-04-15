@@ -12,7 +12,7 @@ if [ -f final ]; then
     rm header
 fi
 
-for i in sims*0.018*.txt; do 
+for i in sims*0.038*.txt; do 
     if [ ! -f header ]; then
 	head -1 $i > header
     fi
