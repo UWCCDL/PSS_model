@@ -26,6 +26,8 @@
 
 (defparameter *negative-reward* -1 "Value of negative feedback")
 
+(defparameter *verbose* nil "Flag for verbose output (for debugging") 
+
 (defun bg-reward-hook (production reward time)
   "Special reward function for competitive D1/D2 productions"
   (declare (ignore time))
@@ -39,9 +41,12 @@
 	  (t
 	   nil))))
 
+
 ;(defun bg-utility-hook (production)
 ;  (let* ((name (symbol-name production))
 ;	 (start (subseq name 0 4)))))
+
+
 
 
 (defun act-r-loaded? ()
@@ -55,6 +60,57 @@
 			     (off-dopa . (0.6467 0.8195)))
   "Data from Frank, Seeberger, and O'Reilly's 2004 study" )
 
+
+(defun production-twin (production)
+  (let ((path (production-pathway production)))
+    (when path
+      (let ((action (production-pathway-action production)))
+	(case path
+	  (pick
+	   (concatenate 'string "DONT-PICK-" action))
+	  (dontpick
+	   (concatenate 'string "PICK-" action))
+	  (otherwise nil))))))
+
+
+(defun production-pathway (production)
+  "Determines if a production is a 'pathway' production, and, if so, which pathway"
+  (let* ((pname (symbol-name production)))
+    (let ((start (subseq pname 0 4)))
+      (cond ((string-equal start "PICK")
+	     'pick)
+	    ((string-equal start "DONT")
+	     'dontpick)
+	    (t
+	     nil)))))
+
+
+(defun find-production-for-option (option)
+  (let ((oname (symbol-name option)))
+    (remove-if-not #'(lambda (x) (search oname (symbol-name x)))
+		   (no-output (pp)))))
+
+(defun conflict-set ()
+  "Returns the specific conflict set for a 'pick' production"
+  (when (act-r-loaded?)
+    (let ((shapes (trial-options (current-trial (current-device)))))
+      (mapcan #'(lambda (x) (find-production-for-option x))
+	      shapes))))
+      
+
+(defun bg-reward-hook-selection (production reward time)
+  "The newest version, with amazing abilities"
+  (declare (ignore time))
+  (let ((module (get-module utility))
+	(path (production-pathway production)))    
+    (when *verbose*
+      (format t "BG: ~A, <~A>~%" production reward))
+    (when path
+      (progn
+	(let ((rivals (remove production (conflict-set))))
+	  (dolist (rival rivals)
+	    (linear-update-utility module rival (* -1 *d2* reward))))
+	(* *d1* reward)))))
 
 
 ;; ---------------------------------------------------------------- ;;

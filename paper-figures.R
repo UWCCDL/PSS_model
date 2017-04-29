@@ -202,7 +202,7 @@ plot.alpha.optimized <- function(data = a_base) {
 
 # Model plots
 
-model.plot.pd <- function(data = mpd, pch.cex = 1.5, frank=T, ...) {
+model.plot.pd <- function(data = mpd, low = 0.2, high = 2.0, pch.cex = 1.5, frank=T, ...) {
   xs <- c(0.25, 1.75)
   cols <- c("#000000", "#22BB22", "#FF0000")
   plot.new()
@@ -243,7 +243,7 @@ model.plot.pd <- function(data = mpd, pch.cex = 1.5, frank=T, ...) {
 
   
   # PD On
-   sub <- subset(data, data$D1 == 2 & data$D2 == 0.2)
+   sub <- subset(data, data$D1 == high & data$D2 == low)
   #sub <- subset(data, data$D1 == 1.15 & data$D2 == 1.85)
   ys <- rev(tapply(sub$Accuracy, sub$Measure, mean))
   ses <- rev(tapply(sub$Accuracy, sub$Measure, se))
@@ -257,7 +257,7 @@ model.plot.pd <- function(data = mpd, pch.cex = 1.5, frank=T, ...) {
   
   # PD Off
   #sub <- subset(data, data$D1 == 0.2 & data$D2 == 2.0)
-  sub <- subset(data, data$D1 == 1.85 & data$D2 == 1.15)
+  sub <- subset(data, data$D1 == low & data$D2 == high)
   ys <- rev(tapply(sub$Accuracy, sub$Measure, mean))
   ses <- rev(tapply(sub$Accuracy, sub$Measure, se))
   points(x = xs, y = ys, bg=cols[3], pch=21, col = cols[3], cex=pch.cex)
