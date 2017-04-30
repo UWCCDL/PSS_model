@@ -106,7 +106,8 @@ frank2007b <- data.frame(Choose = c(73.0866648, 68.80067095),
 ## =========================
 
 #base.data <- read.table(unzip("sims-competitive/sims-alpha-0,0.1,0.001-comp.zip"), header=T, sep=",")
-base.data <- read.table(unzip("sims-competitive-alternative/sims-alpha.zip"), header=T, sep=",")
+#base.data <- read.table(unzip("sims-competitive-alternative/sims-alpha.zip"), header=T, sep=",")
+base.data <- read.table(unzip("sims-noncompetitive-special//sims-alpha.zip"), header=T, sep=",")
 a_base <- aggregate(base.data[c("ChooseA", "AvoidB")], list(Alpha=base.data$Alpha, EGS=base.data$EGS), mean)
 
 

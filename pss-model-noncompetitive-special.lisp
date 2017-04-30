@@ -15,7 +15,7 @@
 
 (clear-all)
 
-(define-model pss
+(define-model pss-model-non-competitive-special
 
 (sgp :er t
      :auto-attend t
