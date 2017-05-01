@@ -22,7 +22,7 @@
      :overstuff-visual-location t
      :esc t
      :ul t
-     ;; :reward-hook bg-reward-hook
+     ;;:reward-hook bg-reward-hook
      :reward-hook bg-reward-hook-selection
      :alpha 0.1
      :egs 0.1

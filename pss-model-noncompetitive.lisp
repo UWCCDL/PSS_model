@@ -15,7 +15,7 @@
 
 (clear-all)
 
-(define-model pss
+(define-model pss-model-noncompetitive
 
 (sgp :er t
      :auto-attend t
@@ -24,7 +24,7 @@
      :ul t
      ;:reward-hook bg-reward-hook
      :alpha 0.1
-     :egs 0.1
+     :egs 0.09
 ;     :model-warnings nil
      :style-warnings nil)
   ;;:utility-hook bg-utility-hook)
