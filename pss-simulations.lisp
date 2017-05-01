@@ -156,7 +156,7 @@
       (setf *d1* 1)
       (setf *d2* 1)
       (setf *positive-reward* 1)
-      (setf *negative-reward* 1)
+      (setf *negative-reward* -1)
       (let* ((params (list (cons :ALPHA a-val) (cons :EGS e-val)))
 	     (results (simulate n :report report :utilities utilities :params params)))
 	(dolist (partial results)
