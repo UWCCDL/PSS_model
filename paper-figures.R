@@ -617,9 +617,9 @@ figure09 <- function(data = merge(mpd, mgen, all=T)) {
   layout(matrix(1:4, nrow = 1, ncol = 4), widths = c(1/2, 1, 1, 1/2))
   par(mar = c(4,3,3,1))
   plot.new()
-  figure8.d1(data)
+  figure9.d1(data)
   title(main = expression(paste(bold("(A) Effects of "), bold(italic(d))[1])))
-  figure8.d2(data)
+  figure9.d2(data)
   title(main = expression(paste(bold("(B) Effects of "), bold(italic(d))[2])))
   plot.new()
 

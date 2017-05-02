@@ -168,6 +168,9 @@ pd_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.008-egs-0.1-com
 pd_sims <- read.table(unzip("sims-competitive-alternative/final-pd.zip"), 
                       header=T, 
                       sep=",")
+pd_sims <- read.table(unzip("sims-noncompetitive-special/final-pd.zip"), 
+                      header=T, 
+                      sep=",")
 
 apd <- aggregate(pd_sims[c("ChooseA", "AvoidB")], 
                  list(D1=pd_sims$D1, D2=pd_sims$D2), 
@@ -276,6 +279,10 @@ gen_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.018-egs-0.1-co
                        header=T, 
                        sep=",")
 gen_sims <- read.table(unzip("sims-competitive-alternative/final-genetics.zip"), 
+                       header=T, 
+                       sep=",")
+
+gen_sims <- read.table(unzip("sims-noncompetitive-special/final-genetics.zip"), 
                        header=T, 
                        sep=",")
 
