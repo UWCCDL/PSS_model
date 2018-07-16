@@ -105,9 +105,9 @@ frank2007b <- data.frame(Choose = c(73.0866648, 68.80067095),
 ## Other analysis: D1 vs. D2
 ## =========================
 
-#base.data <- read.table(unzip("sims-competitive/sims-alpha-0,0.1,0.001-comp.zip"), header=T, sep=",")
+base.data <- read.table(unzip("sims-competitive/sims-alpha-0,0.1,0.001-comp.zip"), header=T, sep=",")
 #base.data <- read.table(unzip("sims-competitive-alternative/sims-alpha.zip"), header=T, sep=",")
-base.data <- read.table(unzip("sims-noncompetitive-special/sims-alpha.zip"), header=T, sep=",")
+#base.data <- read.table(unzip("sims-noncompetitive-special/sims-alpha.zip"), header=T, sep=",")
 a_base <- aggregate(base.data[c("ChooseA", "AvoidB")], list(Alpha=base.data$Alpha, EGS=base.data$EGS), mean)
 
 
@@ -165,12 +165,12 @@ subset(a_base, a_base$EnergyGenetics == min(a_base$EnergyGenetics))
 pd_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.008-egs-0.1-comp.zip"), 
                       header=T, 
                       sep=",")
-pd_sims <- read.table(unzip("sims-competitive-alternative/final-pd.zip"), 
-                      header=T, 
-                      sep=",")
-pd_sims <- read.table(unzip("sims-noncompetitive-special/final-pd.zip"), 
-                      header=T, 
-                      sep=",")
+#pd_sims <- read.table(unzip("sims-competitive-alternative/final-pd.zip"), 
+#                      header=T, 
+#                      sep=",")
+#pd_sims <- read.table(unzip("sims-noncompetitive-special/final-pd.zip"), 
+#                      header=T, 
+#                      sep=",")
 
 apd <- aggregate(pd_sims[c("ChooseA", "AvoidB")], 
                  list(D1=pd_sims$D1, D2=pd_sims$D2), 
@@ -278,13 +278,13 @@ mapd <- merge(mapdA, mapdB, all=T)
 gen_sims <- read.table(unzip("sims-competitive/sims-d1-d2-alpha-0.018-egs-0.1-comp.zip"), 
                        header=T, 
                        sep=",")
-gen_sims <- read.table(unzip("sims-competitive-alternative/final-genetics.zip"), 
-                       header=T, 
-                       sep=",")
+#gen_sims <- read.table(unzip("sims-competitive-alternative/final-genetics.zip"), 
+#                       header=T, 
+#                       sep=",")
 
-gen_sims <- read.table(unzip("sims-noncompetitive-special/final-genetics.zip"), 
-                       header=T, 
-                       sep=",")
+#gen_sims <- read.table(unzip("sims-noncompetitive-special/final-genetics.zip"), 
+#                       header=T, 
+#                       sep=",")
 
 agen <- aggregate(gen_sims[c("ChooseA", "AvoidB")], 
                   list(D1=gen_sims$D1, 

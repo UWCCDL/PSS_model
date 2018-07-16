@@ -284,7 +284,7 @@ model.plot.pd <- function(data = mpd, low = 0.2, high = 2.0, pch.cex = 1.5, fran
 }
 
 
-model.plot.d1 <- function(data = mgen, low=0.5, high=0.5, pch.cex = 1.5, frank=T,...) {
+model.plot.d1 <- function(data = mgen, low=0.5, high=1.5, pch.cex = 1.5, frank=T,...) {
   xs <- c(0.25, 1.75)
   cols <- c("#000000", "#22BB22", "#FF0000")
   plot.new()
@@ -339,10 +339,10 @@ model.plot.d1 <- function(data = mgen, low=0.5, high=0.5, pch.cex = 1.5, frank=T
   #       lwd = 1, lty = 1, 
   #       pch = 21, bty = "n", pt.bg = cols[c(2,1)])
   
-  legend(x = "topleft", col = cols[c(3,1)], 
+  legend(x = "topleft", col = cols[c(2,1)], 
          legend = c(expression(paste(plain("A/A ("), italic(d)[1] == 1.5, ")")), 
                     expression(paste(plain("A/G, G/G ("), italic(d)[1] == 0.5, ")"))), lwd = 1, lty = 1, 
-         pch = 21, bty = "n", pt.bg = cols[c(3,1)])
+         pch = 21, bty = "n", pt.bg = cols[c(2,1)])
 }
 
 
