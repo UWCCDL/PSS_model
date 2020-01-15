@@ -7,10 +7,10 @@ different models of Michael Frank's Probabilitistic Stimulus Selection
 A complete review of the data and models of this repository can be
 found in the following publcations:
 
-    Stocco, A. (2018). A Biologically Plausible Action Selection
-    System for Cognitive Architectures: Implications of Basal Ganglia
-    Anatomy for Learning and Decision‐Making Models. _Cognitive
-    Science_, 42(2), 457-490.
+...Stocco, A. (2018). A Biologically Plausible Action Selection
+...System for Cognitive Architectures: Implications of Basal Ganglia
+...Anatomy for Learning and Decision‐Making Models. _Cognitive
+...Science_, 42(2), 457-490.
     
 
 ## Motivation
