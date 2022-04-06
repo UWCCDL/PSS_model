@@ -1,0 +1,90 @@
+A Generalized Biologically Plausible Action Selection System for
+Cognitive Architectures
+======================================================================
+
+This study extends the results of Stocco et al (2018).
+
+The Original Study
+------------------
+In the original study, Stocco outlined a method to capture the biology
+of the basal ganglia within a production-system based
+architecture. In essence, the main idea was that:
+
+ (1) One of the main features of BG anatomy is the presence of two
+ pathways, the direct and the indirect pathway, that respond in
+ opposite ways to the releas of dopamine.
+
+ (2) This distinction is important for humans, as it explains effects
+ of disease (PD), medication (L-Dopa), as well as individual
+ differences related to striatal Dopamine genetics (D1/D2).
+
+ (3). This difference is not captured in current production
+ systems. In essence, current production systems capture only the
+ "direct" pathways, forgetting the indirect one.
+
+ (4) To obviate this problem, Stocco (2018) added a second series of
+ productions, which capture the indirect pathway by picking the
+ *opposite* alternative in a decision choice---that is, a production
+ rule that recognizes option 'A' will select any other option but
+ 'A'. In other words, such 'anti-productions' would veto 'A', or any
+ other options they are specialized for. Each option 'A', thus, has a
+ corresponding 'Pick A' and a 'Do not pick A' production competing
+ with each other. 
+
+This system was capable of reproducing the results of a number of
+landmark studies (Frank et al., 2004; 2007). However, it has
+suffered from the following limitations:
+
+ (1) The biological plausibility was broken because a reward signal
+ would in fact reinforce an 'anti-action' produced by the indirect
+ pathway. This is in contrast to the biology of the system, where
+ active neurons in the indirect pathway (striatopallidal neurons) are
+ consistently *inhibited* by dopamine.
+
+ (2) As explained in the Discussion section of the original paper,
+ this general production/anti-production scheme has limited
+ generalizability. For example, it is not clear what an
+ 'anti-production' in the case of a three-alternative choice. When
+ asked to choosen between 'A' and 'B', a production that vetoes 'A'
+ obviously chooses 'B'. But what should the same production do when
+ choosing between 'A', 'B', and 'C'? Several schemes can be
+ envisioned; the production could remove 'A' from the pool and reduce
+ the choice set to 'B' and 'C' only; or it could pick randomly between
+ 'B' and 'C'. These solutions are equally plausible but, and this is
+ the point, there is no obvious way to pick between them.
+
+ (3) Because the operations performed by anti-productions are
+ depending on the amount of options available, there is not an obvious
+ 'syntactic' way to generate anti-productions given the normal
+ productions. This is a grave limitation in making the system
+ architectural.
+
+ (4) In parallel systems that can fire multiple productions at the
+ same time (EPIC), productions and anti-productions cannot be
+ implemented---at least, not in a straightforward way.
+
+The Solution
+------------
+The solution proposed here is not to modify the productions, but to
+modify the credit assignment algorithm. After a reward signal R_t has
+been generated,  the algorithm would assign credit to all the
+productions that have fired according to some temporal assignment
+rule. However, within all actions a_1, a_2 ... a_N in a conflict set,
+the rewards will be assigned according to the following rule:
+
+        |- U^i_{t-1} + \alpha * (d_1 * R_t - U^i_{t-1})    if i == j
+U^i_t = +
+        |_ U^i_{t-1} + \alpha * (d_2 * -R_t - U^i_{t-1})   if i != j
+
+Assuming that j is the index of the action that was selected.
+
+This scheme is equivalent to the previously proposed 'Double Q
+learning' if one assumes that that d_1 = d_2.
+
+This system has none of the limitations of the previous algorithm. It
+remains to be seen whether this system can, in fact, perform as well
+as the previous algorithm, or even surpass it.
+
+This Study
+----------
+This study explores the capacity of this new algorithm.
