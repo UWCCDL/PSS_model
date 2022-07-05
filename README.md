@@ -4,11 +4,18 @@ This repository contains a series of simulations and analysis of
 different models of Michael Frank's Probabilitistic Stimulus Selection
 (PSS) task.
 
-A complete review of the data and models of this repository can be
-found in the following publcations:
+## Publications
+
+A complete review of the data and models of this repository, together with  can be found in the following publcation:
 
 * Stocco, A. (2018). A Biologically Plausible Action Selection System for Cognitive Architectures: Implications of Basal Ganglia
 Anatomy for Learning and Decision‐Making Models. _Cognitive Science_, 42(2), 457-490.
+    
+In addition, the following publications are based on this model:
+
+* Stocco, A., Murray, N. L., Yamasaki, B. L., Renno, T. J., Nguyen, J., & Prat, C. S. (2017). Individual differences in the Simon effect are underpinned by differences in the competitive dynamics in the basal ganglia: An experimental verification and a computational model. Cognition, 164, 31-45.
+
+* Xu, Y., & Stocco, A. (2021). Recovering Reliable Idiographic Biological Parameters from Noisy Behavioral Data: the Case of Basal Ganglia Indices in the Probabilistic Selection Task. Computational Brain & Behavior, 4(3), 318-334.
     
 ## Motivation
 
@@ -110,3 +117,6 @@ Finally, you can run the code using ACT-R's `run` function:
 ```lisp
 (run 1000)
 ```
+## Publications
+
+The following publications are based on this model
